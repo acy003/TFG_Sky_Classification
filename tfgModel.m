@@ -3,14 +3,15 @@ dataset = imageDatastore("Dataset\**\cam.png", LabelSource="foldernames");
 
 %Set Labels
 files = dataset.Files;
-dataset.Labels = setLabels(files);
+labels = setLabels(files);
+dataset.Labels = labels;
 
 
 
 %%
 %Variable to decide whether images should be processed into panchromatic
 %channel after resizing or not
-panchromatic = false;
+panchromatic = true;
 numFiles = numel(files);
 
 %Resize the dataset and save resized images in a new directory
@@ -47,6 +48,45 @@ funcNames = ["SCG", "RP", "OSS", "GDX"];
 %%
 trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, panchromatic);
 
+%%
+% Update the Files property of the datastore with the resized filenames
+resizedDataset = resizeDataset(files, 0, numFiles);
+resizedDataset.Labels = labels;
+inputSize = size(imread(resizedDataset.Files{1}));
+
+%Transform image into 1D array of pixel values 
+trainImages = transformImagesTo1D(inputSize, resizedDataset);
+%Change labels to binary values indicating the images class with a 1 in the
+%corresponding row indicating the sky type
+numClasses = 15;
+trainLabels = transformLabels(resizedDataset.Labels, numClasses);
+
+trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, 0);
+%%
+
+function [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds, fold)
+    % Define the number of folds for cross-validation
+    num_folds = numFolds;
+    
+    % Perform cross-validation
+    rng(155);
+    cv = cvpartition(size(trainImages, 2), 'KFold', num_folds);
+    
+    % Create a separate test set and exclude its indices from cross-validation
+    test_set_size = 0.15; % 15% of data for testing
+    rng(155);
+    cv_test = cvpartition(size(trainImages, 2), 'HoldOut', test_set_size);
+    train_cv_idx = training(cv,fold);
+    test_idx = test(cv_test);
+    % Remaining samples after excluding the test set for cross-validation
+    train_idx = find(train_cv_idx & ~test_idx);
+    % Split the remaining samples for cross-validation into training and validation sets
+    train_val_idx = test(cv, fold); % Example fold index
+    val_idx = find(train_val_idx & ~test_idx);
+    test_idx = find(test_idx); % Test set indices
+
+end
+
 function labels = setLabels(files)
 
     labels = split(extractAfter( files, "Dataset\"), filesep);
@@ -69,10 +109,10 @@ function resizedDataset = resizeDataset(files, panchromatic,numFiles)
     fileCount = 0;
     %Check if resized folder already exists
     if exist(directory, 'dir')
-        fileCount = sum(~[dir("resizedImages").isdir]);
+        fileCount = sum(~[dir(directory).isdir]);
         %Check if all the files are already in the folder
         if fileCount == 1500
-            resizedDataset = imageDatastore("resizedImages\");
+            resizedDataset = imageDatastore(directory);
         end
     end
     % Resize the images if the files are not in the folder or the folder doesnt
@@ -124,14 +164,15 @@ function transformedLabels = transformLabels(labels, numClasses)
 
 end
 
-function net = setupNetwork(layers, maxVal, epochs, trainfcn)
+function net = setupNetwork(layers, maxVal, epochs, trainfcn, train_idx, val_idx, test_idx)
     
     net = patternnet(layers,trainfcn);
+    net.divideFcn = 'divideind';
     net.trainParam.max_fail = maxVal;
     net.trainParam.epochs = epochs;
-    net.divideParam.trainRatio = 70/100;
-    net.divideParam.valRatio = 15/100;
-    net.divideParam.testRatio = 15/100;
+    net.divideParam.trainInd = train_idx;
+    net.divideParam.valInd = val_idx;
+    net.divideParam.testInd = test_idx;
 
 end
 
@@ -148,15 +189,15 @@ function saveResults(results, panchromatic)
     if exist(filename, 'file') == 0
         % If the file doesn't exist, create a new one and write the headers
         fid = fopen(filename, 'w');
-        headers = {"DateTime","Accuracy",  "Hidden Layers", "Hidden Neurons",  "Training Function"};
-        fprintf(fid, "%s, %s, %s,%s,%s \n", headers{:});
+        headers = {"DateTime","Accuracy","Precision","Recall","Hidden Layers", "Hidden Neurons", "Training Function","Training Time"};
+        fprintf(fid, "%s, %s,%s,%s,%s, %s,%s,%s \n", headers{:});
     else
         % If the file exists, open it to append data
         fid = fopen(filename, 'a');
     end
     
     % Write the data to the file
-    fprintf(fid, '%s,%4f,%d,%d,%s\n', results{1}, results{2},results{3},results{4},results{5});
+    fprintf(fid, '%s,%4f,%4f,%4f,%d,%d,%s,%4f\n', results{:});
     
     % Close the file
     fclose(fid);
@@ -198,6 +239,10 @@ end
 function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabels, panchromatic)
 
     for f = 1:length(functions)
+
+        accuraciesTotal = zeros(length(neurons));
+        networks = cell(length(neurons),1);
+        
         for n = 1:length(neurons)
                 %Training options
                 hiddenLayers= 1;
@@ -210,32 +255,78 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                 %Create Network
                 maxVal = 10;
                 epochs = 1000;
-                net = setupNetwork(layers,maxVal,epochs,trainfcn);
-                       
-                %Train Neural Network with specified training function
-                rng(155);
-                [net, tr] = train(net,trainImages, trainLabels, 'useParallel', 'yes');
-                
-                % Extract testing set using training record
-                testImages = trainImages(:, tr.testInd);
-                testLabels = trainLabels(:, tr.testInd);
-    
-                %Perform prediction on test set
-                y = net(testImages);
-                predictedClasses = vec2ind(y);
-                
-                %Calculate accuracy
-                actualClasses = vec2ind(testLabels);
-                accuracy=sum(predictedClasses==actualClasses)/size(testImages,2)*100;
-                
-                %Get confusion matrices using predicted and true values
-                cmatrix = confusionmat(actualClasses, predictedClasses);
-                
+                numFolds = 5;
+                accuracies = zeros(numFolds,1);
+                precisions = zeros(numFolds,1);
+                recalls = zeros(numFolds,1);
+                cmatrices = zeros(15, 15);
+                avgTime = zeros(numFolds,1);
+
+                for fold = 1:numFolds
+                    [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds,fold);
+                    net = setupNetwork(layers,maxVal,epochs,trainfcn,train_idx,val_idx,test_idx);
+                           
+                    %Train Neural Network with specified training function
+                    rng(155);
+                    tic;
+                    [net, tr] = train(net,trainImages, trainLabels, 'useParallel', 'yes');
+                    avgTime(fold) = toc;
+                    % Extract testing set using training record
+                    testImages = trainImages(:, tr.testInd);
+                    testLabels = trainLabels(:, tr.testInd);
+        
+                    %Perform prediction on test set
+                    y = net(testImages);
+                    predictedClasses = vec2ind(y);
+                    
+                    
+                    %Calculate accuracy
+                    actualClasses = vec2ind(testLabels);
+                    accuracies(fold) =sum(predictedClasses==actualClasses)/size(testImages,2)*100;
+                    
+                    %Get confusion matrices using predicted and true values
+                    cmatrix = confusionmat(actualClasses, predictedClasses);
+                    % Accumulate confusion matrix
+                    cmatrices = cmatrices + cmatrix;
+
+                    % Calculate precision and recall for each class
+                    precision = zeros(15, 1);
+                    recall = zeros(15, 1);
+                    for i = 1:15
+                        TP = cmatrix(i, i);
+                        FP = sum(cmatrix(:, i)) - TP;
+                        FN = sum(cmatrix(i, :)) - TP;
+                        
+                        if (TP + FP) == 0
+                            precision(i) = 0;
+                        else
+                            precision(i) = TP / (TP + FP);
+                        end
+
+                        if (TP + FN) == 0
+                            recall(i) = 0;
+                        else
+                            recall(i) = TP / (TP + FN);
+                        end
+
+                    end
+                    precisions(fold) = mean(precision);
+                    recalls(fold) = mean(recall);
+                    
+                end
+
+                precision = mean(precisions);
+                recall = mean(recalls);
+                accuracy = mean(accuracies);
+                accuraciesTotal(n) = accuracy;
+                networks{n} = net;
+                time = mean(avgTime);
+                cmatrix = round(cmatrices/numFolds);
                 
                 % Define the data to be written, including the current date and time
                 currentDateTime = datetime('now');
-                results = {string(currentDateTime), accuracy, hiddenLayers, hiddenNeurons, funcName};
-
+                results = {string(currentDateTime), accuracy,precision,recall, hiddenLayers, hiddenNeurons, funcName, time};
+                
                 % Save the data inside a .csv file
                 saveResults(results,panchromatic);
                 
