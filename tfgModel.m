@@ -46,10 +46,12 @@ funcs = ["trainscg","trainrp" "trainoss" "traingdx"];
 funcNames = ["SCG", "RP", "OSS", "GDX"];
 
 %%
+% Train the network using the specified options
 trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, panchromatic);
 
 %%
-
+% Performs cross-validation split and returns the indices for training,
+% validation and test set for the current split
 function [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds, fold)
     % Define the number of folds for cross-validation
     num_folds = numFolds;
@@ -73,6 +75,7 @@ function [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds, fold)
 
 end
 
+% Sets the labels of the specified files by splitting their file path
 function labels = setLabels(files)
 
     labels = split(extractAfter( files, "Dataset\"), filesep);
@@ -83,6 +86,8 @@ function labels = setLabels(files)
 
 end
 
+% Resizes the given files and saves them in a new directory
+% Transforms images into panchromatic images if specified
 function resizedDataset = resizeDataset(files, panchromatic,numFiles) 
 
     if panchromatic
@@ -124,6 +129,7 @@ function resizedDataset = resizeDataset(files, panchromatic,numFiles)
 
 end
 
+%Flattens the Image Matrix of pixel values into a 1 dimensional vector
 function transformedImages = transformImagesTo1D(inputSize, dataset)
 
     transformedImages = zeros(prod(inputSize), numel(dataset.Files));
@@ -134,6 +140,8 @@ function transformedImages = transformImagesTo1D(inputSize, dataset)
 
 end
 
+% Transforms labels into 15x1500 Matrix of binary values, row value
+% represents the sample's (column) class label
 function transformedLabels = transformLabels(labels, numClasses)
 
     rows = numClasses;
@@ -150,6 +158,8 @@ function transformedLabels = transformLabels(labels, numClasses)
 
 end
 
+% Sets up the network parameters according to the specified values, dataset
+% split indices are applied
 function net = setupNetwork(layers, maxVal, epochs, trainfcn, train_idx, val_idx, test_idx)
     
     net = patternnet(layers,trainfcn);
@@ -162,6 +172,8 @@ function net = setupNetwork(layers, maxVal, epochs, trainfcn, train_idx, val_idx
 
 end
 
+% Training and test results are saved into a csv file, different file
+% chosen depending on the color channel
 function saveResults(results, panchromatic)
     
     % Specify the file name
@@ -194,6 +206,8 @@ function saveResults(results, panchromatic)
 
 end
 
+% Result matrix is saved inside a new directory, different directories
+% depending on the color channel
 function saveCMatrix(cmatrix,panchromatic,hiddenNeurons, hiddenLayers, funcName)
 
     if panchromatic
@@ -222,15 +236,18 @@ function saveCMatrix(cmatrix,panchromatic,hiddenNeurons, hiddenLayers, funcName)
 
 end
 
+% Performs training of the network for each of the specified parameter
+% vectors (namely functions and neurons)
 function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabels, panchromatic)
 
-
+    % Total accuracies and network cell for later use to determine the best network
     accuraciesTotal = zeros(length(neurons));
     networks = cell(length(neurons),1);
 
     for f = 1:length(functions)    
         
         for n = 1:length(neurons)
+
                 %Training options
                 hiddenLayers= 1;
                 hiddenNeurons = neurons(n);
@@ -239,10 +256,13 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                 trainfcn = functions(f);
                 funcName = funcNames(f);
                 
-                %Create Network
                 maxVal = 10;
                 epochs = 1000;
+
+                % Number of folds for cross-validation
                 numFolds = 5;
+
+                % Result vectors for final mean calculation
                 accuracies = zeros(numFolds,1);
                 precisions = zeros(numFolds,1);
                 recalls = zeros(numFolds,1);
@@ -250,14 +270,22 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                 avgTime = zeros(numFolds,1);
 
                 for fold = 1:numFolds
+                    % Get training, validation and test set indices
                     [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds,fold);
+                    %Create Network
                     net = setupNetwork(layers,maxVal,epochs,trainfcn,train_idx,val_idx,test_idx);
                            
-                    %Train Neural Network with specified training function
+                    % Set rng seed
                     rng(155);
+
+                    % Start timer
                     tic;
+                    %Train Neural Network with specified training function
                     [net, tr] = train(net,trainImages, trainLabels, 'useParallel', 'yes');
+
+                    % Save recorded time
                     avgTime(fold) = toc;
+
                     % Extract testing set using training record
                     testImages = trainImages(:, tr.testInd);
                     testLabels = trainLabels(:, tr.testInd);
@@ -302,13 +330,15 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                     
                 end
 
+                % Calculate mean values
                 precision = mean(precisions);
                 recall = mean(recalls);
                 accuracy = mean(accuracies);
                 accuraciesTotal(n) = accuracy;
-                networks{n} = net;
                 time = mean(avgTime);
                 cmatrix = round(cmatrices/numFolds);
+                % Cache network for later usage
+                networks{n} = net;
                 
                 % Define the data to be written, including the current date and time
                 currentDateTime = datetime('now');
@@ -328,6 +358,7 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
         end
     end
 
+    % Choose the best network according to highest accuracy and save it
     [~, bestNetIndex] = max(accuraciesTotal);
     skynetwork = networks{bestNetIndex};
     if panchromatic
@@ -335,5 +366,4 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
     else
         save('Skynetwork.mat', 'skynetwork');
     end
-   
 end
