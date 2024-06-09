@@ -330,5 +330,10 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
 
     [~, bestNetIndex] = max(accuraciesTotal);
     skynetwork = networks{bestNetIndex};
-    save('Skynetwork.mat', 'skynetwork');
+    if panchromatic
+        save('SkynetworkY.mat', 'skynetwork');
+    else
+        save('Skynetwork.mat', 'skynetwork');
+    end
+   
 end
