@@ -19,8 +19,14 @@ numClasses = 15;
 images = transformImagesTo1D(inputSize, resizedDataset);
 
 %%
+
 % Load the network
-load("Skynetwork.mat", 'skynetwork');
+if panchromatic
+    load("SkynetworkY.mat", 'skynetwork');
+else
+    load("Skynetwork.mat", 'skynetwork');
+end
+
 
 %%
 % Predict the classes of the dataset using the network
