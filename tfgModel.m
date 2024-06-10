@@ -18,7 +18,7 @@ numFiles = numel(files);
 resizedDataset = resizeDataset(files, panchromatic, numFiles);
 
 %%
-% Update the Files property of the datastore with the resized filenames
+%Update the Files property of the datastore with the resized filenames
 resizedDataset.Labels = labels;
 inputSize = size(imread(resizedDataset.Files{1}));
 
@@ -42,15 +42,16 @@ trainLabels = transformLabels(resizedDataset.Labels, numClasses);
 %%
 %Set array of neuron quantity to train
 neurons = [1 3 5 10 15 20 30 40 50 60 70 80 90 100];
+%Set the training functions that will be used for training
 funcs = ["trainscg","trainrp" "trainoss" "traingdx"];
 funcNames = ["SCG", "RP", "OSS", "GDX"];
 
 %%
-% Train the network using the specified options
+%Train the network using the specified options
 trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, panchromatic);
 
 %%
-% Update the Files property of the datastore with the resized filenames
+%Update the Files property of the datastore with the resized filenames
 resizedDataset = resizeDataset(files, 0, numFiles);
 resizedDataset.Labels = labels;
 inputSize = size(imread(resizedDataset.Files{1}));
@@ -65,32 +66,32 @@ trainLabels = transformLabels(resizedDataset.Labels, numClasses);
 trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, 0);
 
 %%
-% Performs cross-validation split and returns the indices for training,
-% validation and test set for the current split
+%Performs cross-validation split and returns the indices for training,
+%validation and test set for the current split
 function [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds, fold)
-    % Define the number of folds for cross-validation
+    %Define the number of folds for cross-validation
     num_folds = numFolds;
     
-    % Perform cross-validation
+    %Perform cross-validation
     rng(155);
     cv = cvpartition(size(trainImages, 2), 'KFold', num_folds);
     
-    % Create a separate test set and exclude its indices from cross-validation
+    %Create a separate test set and exclude its indices from cross-validation
     test_set_size = 0.15; % 15% of data for testing
     rng(155);
     cv_test = cvpartition(size(trainImages, 2), 'HoldOut', test_set_size);
     train_cv_idx = training(cv,fold);
     test_idx = test(cv_test);
-    % Remaining samples after excluding the test set for cross-validation
+    %Remaining samples after excluding the test set for cross-validation
     train_idx = find(train_cv_idx & ~test_idx);
-    % Split the remaining samples for cross-validation into training and validation sets
+    %Split the remaining samples for cross-validation into training and validation sets
     train_val_idx = test(cv, fold); % Example fold index
     val_idx = find(train_val_idx & ~test_idx);
     test_idx = find(test_idx); % Test set indices
 
 end
 
-% Sets the labels of the specified files by splitting their file path
+%Sets the labels of the specified files by splitting their file path
 function labels = setLabels(files)
 
     labels = split(extractAfter( files, "Dataset\"), filesep);
@@ -101,8 +102,8 @@ function labels = setLabels(files)
 
 end
 
-% Resizes the given files and saves them in a new directory
-% Transforms images into panchromatic images if specified
+%Resizes the given files and saves them in a new directory
+%Transforms images into panchromatic images if specified
 function resizedDataset = resizeDataset(files, panchromatic,numFiles) 
 
     if panchromatic
@@ -121,19 +122,19 @@ function resizedDataset = resizeDataset(files, panchromatic,numFiles)
             resizedDataset = imageDatastore(directory);
         end
     end
-    % Resize the images if the files are not in the folder or the folder doesnt
-    % exist
+    %Resize the images if the files are not in the folder or the folder doesnt
+    %exist
     if ~exist(directory, 'dir') || (fileCount ~= numFiles)
         mkdir(directory);
     
     
-        % Loop through each file and resize the image
+        %Loop through each file and resize the image
         for i = 1:numel(files)
             img = imread(files{i});
             resizedImg = imresize(img, [128 117]);
             [~, filename, ext] = fileparts(files{i});
             resizedFilename = sprintf('%s_resized_%03d%s', filename, i, ext);
-            newFilename = fullfile(directory, resizedFilename); % Assuming current directory for storing resized images
+            newFilename = fullfile(directory, resizedFilename); %Assuming current directory for storing resized images
             if panchromatic
                 resizedImg = rgb2gray(resizedImg);
             end
@@ -150,22 +151,22 @@ function transformedImages = transformImagesTo1D(inputSize, dataset)
     transformedImages = zeros(prod(inputSize), numel(dataset.Files));
     for i = 1:numel(dataset.Files)
         img = imread(dataset.Files{i});
-        transformedImages(:, i) = img(:); % Flatten and store each image in a column
+        transformedImages(:, i) = img(:); %Flatten and store each image in a column
     end
 
 end
 
-% Transforms labels into 15x1500 Matrix of binary values, row value
-% represents the sample's (column) class label
+%Transforms labels into 15x1500 Matrix of binary values, row value
+%represents the sample's (column) class label
 function transformedLabels = transformLabels(labels, numClasses)
 
     rows = numClasses;
     cols = numel(labels);
     
-    % Create an array of zeros
+    %Create an array of zeros
     array = zeros(rows, cols);
     
-    % Set the values based on the label numbers
+    %Set the values based on the label numbers
     for i = 1:cols
         array(:, i) = (1:rows == labels(i));
     end
@@ -173,8 +174,8 @@ function transformedLabels = transformLabels(labels, numClasses)
 
 end
 
-% Sets up the network parameters according to the specified values, dataset
-% split indices are applied
+%Sets up the network parameters according to the specified values, dataset
+%split indices are applied
 function net = setupNetwork(layers, maxVal, epochs, trainfcn, train_idx, val_idx, test_idx)
     
     net = patternnet(layers,trainfcn);
@@ -187,42 +188,42 @@ function net = setupNetwork(layers, maxVal, epochs, trainfcn, train_idx, val_idx
 
 end
 
-% Training and test results are saved into a csv file, different file
-% chosen depending on the color channel
+%Training and test results are saved into a csv file, different file
+%chosen depending on the color channel
 function saveResults(results, panchromatic)
     
-    % Specify the file name
+    %Specify the file name
     if panchromatic
         filename = 'resultsY.csv';
     else
         filename = 'results.csv';
     end 
 
-    % Check if the file exists
+    %Check if the file exists
     if exist(filename, 'file') == 0
-        % If the file doesn't exist, create a new one and write the headers
+        %If the file doesn't exist, create a new one and write the headers
         fid = fopen(filename, 'w');
         headers = {"DateTime","Accuracy","Precision","Recall","Hidden Layers", "Hidden Neurons", "Training Function","Training Time"};
         fprintf(fid, "%s, %s,%s,%s,%s, %s,%s,%s \n", headers{:});
     else
-        % If the file exists, open it to append data
+        %If the file exists, open it to append data
         fid = fopen(filename, 'a');
     end
     
-    % Write the data to the file
+    %Write the data to the file
     fprintf(fid, '%s,%4f,%4f,%4f,%d,%d,%s,%4f\n', results{:});
     
-    % Close the file
+    %Close the file
     fclose(fid);
-    % Close all open file handles
+    %Close all open file handles
     fclose('all');
     
     clear headers results fid filename filename
 
 end
 
-% Result matrix is saved inside a new directory, different directories
-% depending on the color channel
+%Result matrix is saved inside a new directory, different directories
+%depending on the color channel
 function saveCMatrix(cmatrix,panchromatic,hiddenNeurons, hiddenLayers, funcName)
 
     if panchromatic
@@ -237,13 +238,13 @@ function saveCMatrix(cmatrix,panchromatic,hiddenNeurons, hiddenLayers, funcName)
     end
     
     
-    % Specify the file name for the image
+    %Specify the file name for the image
     currentDate = string(datetime('now','Format','yyyy-MM-dd_HH_mm_ss'));
     
     filename = sprintf('%s_cMatrix_%s_HN%d_HL%d.png',funcName, string(currentDate), hiddenNeurons, hiddenLayers);
     imageFilename = fullfile(outputFolder, filename);
 
-    % Save the confusion matrix plot as an image
+    %Save the confusion matrix plot as an image
     cChart = confusionchart(cmatrix);
     saveas(cChart, imageFilename);
 
@@ -251,11 +252,11 @@ function saveCMatrix(cmatrix,panchromatic,hiddenNeurons, hiddenLayers, funcName)
 
 end
 
-% Performs training of the network for each of the specified parameter
-% vectors (namely functions and neurons)
+%Performs training of the network for each of the specified parameter
+%vectors (namely functions and neurons)
 function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabels, panchromatic)
 
-    % Total accuracies and network cell for later use to determine the best network
+    %Total accuracies and network cell for later use to determine the best network
     accuraciesTotal = zeros(length(neurons));
     networks = cell(length(neurons),1);
 
@@ -274,10 +275,10 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                 maxVal = 10;
                 epochs = 1000;
 
-                % Number of folds for cross-validation
+                %Number of folds for cross-validation
                 numFolds = 5;
 
-                % Result vectors for final mean calculation
+                %Result vectors for final mean calculation
                 accuracies = zeros(numFolds,1);
                 precisions = zeros(numFolds,1);
                 recalls = zeros(numFolds,1);
@@ -285,23 +286,23 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                 avgTime = zeros(numFolds,1);
 
                 for fold = 1:numFolds
-                    % Get training, validation and test set indices
+                    %Get training, validation and test set indices
                     [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds,fold);
                     %Create Network
                     net = setupNetwork(layers,maxVal,epochs,trainfcn,train_idx,val_idx,test_idx);
                            
-                    % Set rng seed
+                    %Set rng seed
                     rng(155);
 
-                    % Start timer
+                    %Start timer
                     tic;
                     %Train Neural Network with specified training function
                     [net, tr] = train(net,trainImages, trainLabels, 'useParallel', 'yes');
 
-                    % Save recorded time
+                    %Save recorded time
                     avgTime(fold) = toc;
 
-                    % Extract testing set using training record
+                    %Extract testing set using training record
                     testImages = trainImages(:, tr.testInd);
                     testLabels = trainLabels(:, tr.testInd);
         
@@ -316,10 +317,10 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                     
                     %Get confusion matrices using predicted and true values
                     cmatrix = confusionmat(actualClasses, predictedClasses);
-                    % Accumulate confusion matrix
+                    %Accumulate confusion matrix
                     cmatrices = cmatrices + cmatrix;
 
-                    % Calculate precision and recall for each class
+                    %Calculate precision and recall for each class
                     precision = zeros(15, 1);
                     recall = zeros(15, 1);
                     for i = 1:15
@@ -345,24 +346,24 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
                     
                 end
 
-                % Calculate mean values
+                %Calculate mean values
                 precision = mean(precisions);
                 recall = mean(recalls);
                 accuracy = mean(accuracies);
                 accuraciesTotal(n) = accuracy;
                 time = mean(avgTime);
                 cmatrix = round(cmatrices/numFolds);
-                % Cache network for later usage
+                %Cache network for later usage
                 networks{n} = net;
                 
-                % Define the data to be written, including the current date and time
+                %Define the data to be written, including the current date and time
                 currentDateTime = datetime('now');
                 results = {string(currentDateTime), accuracy,precision,recall, hiddenLayers, hiddenNeurons, funcName, time};
                 
-                % Save the data inside a .csv file
+                %Save the data inside a .csv file
                 saveResults(results,panchromatic);
                 
-                % Save the cMatrix in a separate folder
+                %Save the cMatrix in a separate folder
                 saveCMatrix(cmatrix,panchromatic,hiddenNeurons,hiddenLayers, funcName);
                 
                 %Clear variables
@@ -373,7 +374,7 @@ function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabe
         end
     end
 
-    % Choose the best network according to highest accuracy and save it
+    %Choose the best network according to highest accuracy and save it
     [~, bestNetIndex] = max(accuraciesTotal);
     skynetwork = networks{bestNetIndex};
     if panchromatic
