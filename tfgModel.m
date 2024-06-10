@@ -102,7 +102,7 @@ function resizedDataset = resizeDataset(files, panchromatic,numFiles)
     if exist(directory, 'dir')
         fileCount = sum(~[dir(directory).isdir]);
         %Check if all the files are already in the folder
-        if fileCount == 1500
+        if fileCount == numFiles
             resizedDataset = imageDatastore(directory);
         end
     end
