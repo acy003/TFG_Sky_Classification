@@ -48,7 +48,7 @@ funcNames = ["SCG", "RP", "OSS", "GDX"];
 
 %%
 %Train the network using the specified options
-trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, panchromatic);
+trainSkyNetwork(neurons, funcs, funcNames, trainImages, trainLabels, panchromatic);
 
 %%
 %Update the Files property of the datastore with the resized filenames
@@ -63,7 +63,7 @@ trainImages = transformImagesTo1D(inputSize, resizedDataset);
 numClasses = 15;
 trainLabels = transformLabels(resizedDataset.Labels, numClasses);
 
-trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, 0);
+trainSkyNetwork(neurons, funcs, funcNames, trainImages, trainLabels, 0);
 
 %%
 %Performs cross-validation split and returns the indices for training,
@@ -254,7 +254,7 @@ end
 
 %Performs training of the network for each of the specified parameter
 %vectors (namely functions and neurons)
-function trainCloudNetwork(neurons, functions, funcNames, trainImages, trainLabels, panchromatic)
+function trainSkyNetwork(neurons, functions, funcNames, trainImages, trainLabels, panchromatic)
 
     %Total accuracies and network cell for later use to determine the best network
     accuraciesTotal = zeros(length(neurons));
