@@ -50,6 +50,21 @@ funcNames = ["SCG", "RP", "OSS", "GDX"];
 trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, panchromatic);
 
 %%
+% Update the Files property of the datastore with the resized filenames
+resizedDataset = resizeDataset(files, 0, numFiles);
+resizedDataset.Labels = labels;
+inputSize = size(imread(resizedDataset.Files{1}));
+
+%Transform image into 1D array of pixel values 
+trainImages = transformImagesTo1D(inputSize, resizedDataset);
+%Change labels to binary values indicating the images class with a 1 in the
+%corresponding row indicating the sky type
+numClasses = 15;
+trainLabels = transformLabels(resizedDataset.Labels, numClasses);
+
+trainCloudNetwork(neurons, funcs, funcNames, trainImages, trainLabels, 0);
+
+%%
 % Performs cross-validation split and returns the indices for training,
 % validation and test set for the current split
 function [train_idx,val_idx,test_idx] = prfmCV(trainImages, numFolds, fold)
