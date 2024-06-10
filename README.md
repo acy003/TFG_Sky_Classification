@@ -1,4 +1,4 @@
-This repository contains the code used in my TFG project.
+This repository contains the code used in my TFG project. This project focuses on creating and training a artificial neural network to classify sky images under the CIE standard.
 
 2 MATLAB scripts can be seen:
 
