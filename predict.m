@@ -1,25 +1,25 @@
-%% Load Dataset
+%%Load Dataset
 dataset = imageDatastore("predictSet\**\cam.png");
 files = dataset.Files;
 numFiles = numel(files);
 
 %%
-% Choose whether to use panchromatic channel or RGB channel
+%Choose whether to use panchromatic channel or RGB channel
 panchromatic = 1;
 
-% Resize the dataset and save resized images in a new directory
+%Resize the dataset and save resized images in a new directory
 resizedDataset = resizeDataset(files, panchromatic, numFiles);
 
 %%
-% Get the size of resized images
+%Get the size of resized images
 inputSize = size(imread(resizedDataset.Files{1}));
 numClasses = 15;
 
-% Transform images into a 1 dimensional vector of pixel values
+%Transform images into a 1 dimensional vector of pixel values
 images = transformImagesTo1D(inputSize, resizedDataset);
 
 %%
-% Load the network
+%Load the network
 if panchromatic
     load("SkynetworkY.mat", 'skynetwork');
 else
@@ -27,13 +27,13 @@ else
 end
 
 %%
-% Predict the classes of the dataset using the network
+%Predict the classes of the dataset using the network
 predictions = predClasses(skynetwork,images);
 
-% Save the predictions in a .csv file
+%Save the predictions in a .csv file
 writematrix( predictions, "predictions.csv");
 
-% Performs predictions on the specified dataset using the passed network
+%Performs predictions on the specified dataset using the passed network
 function predictions = predClasses(net, dataset)
 
     %Perform prediction on test set
@@ -42,8 +42,8 @@ function predictions = predClasses(net, dataset)
     
 end
 
-% Resizes the given files and saves them in a new directory
-% Transforms images into panchromatic images if specified
+%Resizes the given files and saves them in a new directory
+%Transforms images into panchromatic images if specified
 function resizedDataset = resizeDataset(files, panchromatic,numFiles) 
 
     if panchromatic
@@ -62,13 +62,13 @@ function resizedDataset = resizeDataset(files, panchromatic,numFiles)
             resizedDataset = imageDatastore(directory);
         end
     end
-    % Resize the images if the files are not in the folder or the folder doesnt
-    % exist
+    %Resize the images if the files are not in the folder or the folder doesnt
+    %exist
     if ~exist(directory, 'dir') || (fileCount ~= numFiles)
         mkdir(directory);
     
     
-        % Loop through each file and resize the image
+        %Loop through each file and resize the image
         for i = 1:numel(files)
             img = imread(files{i});
             resizedImg = imresize(img, [128 117]);
