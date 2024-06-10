@@ -19,14 +19,12 @@ numClasses = 15;
 images = transformImagesTo1D(inputSize, resizedDataset);
 
 %%
-
 % Load the network
 if panchromatic
     load("SkynetworkY.mat", 'skynetwork');
 else
     load("Skynetwork.mat", 'skynetwork');
 end
-
 
 %%
 % Predict the classes of the dataset using the network
@@ -35,7 +33,7 @@ predictions = predClasses(skynetwork,images);
 % Save the predictions in a .csv file
 writematrix( predictions, "predictions.csv");
 
-
+% Performs predictions on the specified dataset using the passed network
 function predictions = predClasses(net, dataset)
 
     %Perform prediction on test set
@@ -44,6 +42,8 @@ function predictions = predClasses(net, dataset)
     
 end
 
+% Resizes the given files and saves them in a new directory
+% Transforms images into panchromatic images if specified
 function resizedDataset = resizeDataset(files, panchromatic,numFiles) 
 
     if panchromatic
@@ -85,6 +85,7 @@ function resizedDataset = resizeDataset(files, panchromatic,numFiles)
 
 end
 
+%Flattens the Image Matrix of pixel values into a 1 dimensional vector
 function transformedImages = transformImagesTo1D(inputSize, dataset)
 
     transformedImages = zeros(prod(inputSize), numel(dataset.Files));
