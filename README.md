@@ -1,4 +1,4 @@
-# Sky Classification using an Artificial Neural Network
+# TFG-Sky Classification using an Artificial Neural Network
 This repository contains the code used in my TFG project. This project focuses on creating and training a artificial neural network to classify sky images under the CIE standard.
 
 ## Author
