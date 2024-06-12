@@ -1,0 +1,86 @@
+\capitulo{5}{Relevant Aspects of Project Development}
+
+The project development will be summarized in this chapter, elaborating on the most important points and problems that occurred during the process.
+\section{Project Planning}
+During the project planning phase, the first step was to delve into the sky classification topic and read into the methodology of how and why it is important. Additionally, it was important to understand the CIE standard for sky classification and how its classification works. 
+
+Once the surface level research had been done, further research in previous work related to the topic was made. The research itself revealed that most classification projects based on the sky were more focused on cloud classification than sky classification itself. 
+
+Finally it had to be established what exactly the ANN was going to classify and which classes were to be defined. The final decision was made to focus the project on sky classification by the CIE standard.
+
+\section{Data Preparation}
+As the sky images were provided by the UBU already as it had been used for previous research \cite{skyClassANN-Granados-Lopéz}. To prepare for the implementation, image measurements were documented and the database was made available on the local device. 
+
+Once prepared, it was time to plan how the dataset would be split for the neural network to use. As the dataset "only" contains 1500 images, a 70-15-15 split was chosen; 70\% for the training set, 15\% for the validation set and 15\% percent for the final testing. It was also decided that this split should be easily replicable for repeated training and experimenting, therefore, the seed used to choose the random split was the same for every training execution cycle.
+
+\section{Implementation}
+
+\subsection{Class Labelling}
+As previously mentioned in the Techniques and Tools chapter, MATLABs user friendly accessibility, allowed for simple label extraction for each image. This however, would turn out to be slightly more complicated for this database, as each image was inside its class folder as intended, however it would also be inside a nested subfolder inside of the class folder for each single image, and since MATLABs automatic labelling only uses the direct parent folder of the image, some slight work around was required
+\imagen{path}{Example path of how each image is stored inside the dataset}{1}
+
+To deal with this issue, a function was defined that takes the file path of each file, and splits the file path at the root dataset folder and continues to split the path until only the class folder has been acquired. This cell structure of labels is then returned and can be assigned to the networks "label" parameter.
+
+The last requirement is to create a 15x1500 matrix that stores binary values in each row, indicating that samples class. To do this, a short function was created that creates a 15x1500 matrix of zeroes and loops through the newly established labels to assign their corresponding class value for their respective column. 
+
+\subsection{Resizing}
+To be able to use the current images, without requiring excessive computational power, it was important to resize the images to a more manageable size. To do this, another function was defined that loops through all files inside the dataset, and resizes them to a smaller format. In order to not overwrite the old dataset, a new directory with the resized images is created and the images are saved inside the new directory with a new name.
+
+An issue however, occurred during initial executions. It turns out that a few images inside the dataset were either a few pixels smaller or bigger than the previously established standard. This caused problems during training, as the array dimensions of the images were not the same. This was also not prevented by the first implementation of the resizing function, as that resizing was using a 80\% reduction of each image to create the new format, therefore each images that were inconsistent, remained inconsistent after resizing as well.
+
+To fix this issue, a simple change from percentage resizing, to resizing using set dimensions was made. All images inside of the dataset would now be resized to a 117x128 pixel image.
+
+\subsection{Color Channel}
+Since it was established, that all experiments would also be performed using the Y color channel as well as the regular RGB channel, there would be a need to transform the RGB images into Panchromatic ones.
+
+To facilitate this change, it was decided that adding a parameter to the resizing function, that determined whether or not the images should be transformed to the panchromatic channel before resizing, was the most efficient. Images would now be transformed into Panchromatic images (using the Y channel) before resizing, if the corresponding parameter of the function was set. 
+\subsection{Dimensionality}
+The network function used for this project, was the patternnet function provided by MATLAB, which is a ANN that specializes in pattern recognition, making it perfect to be used for this project. The usage of this method did come with its own requirements however. The network itself, could only work with 1 dimensional sample values and since images are 2 dimensional, a transformation had to be done before training could begin.
+
+For this particular issue MATLABs accessibility regarding matrix and array mathematics came in handy, as a simple one line of code expression, handled the dimension transformation perfectly.
+\imagen{imgtransform}{Code snippet showing the part of the transformation function that assigns all values from an image data matrix, to a single row of a new matrix}{1}
+
+\subsection{Split Replicability}
+In order to have the data split replicability, we have to specify a set seed, which the script will use to perform all its functions that involve randomisation. To achieve this, a simple call of the rng (Random number generator) method in MATLAB would suffice. However, this doesn't set a global seed for all machines from which this script can be run. To help with this, MATLAB offers the option to set a Global Stream variable, which defines a specific global stream for randomisation, after the global stream variable has been set, the rng seed can be specified as usual.
+
+\imagen{rng}{Code snippet showing the Global Stream and RNG seed assignments}{1}
+
+\subsection{Training}
+Training ANNs can take up lots of time when working with bigger datasets or when trying to experiment with different parameter combinations. One of the best ways to alleviate having to waste time manually changing given parameters and/or document results is to automate as much of the process as possible. For this project the usage of different training functions with 2 different color channels was the main focus. Thus it was important to setup all the functions so that they can either be called multiple times per parameter combination. Or that they go through the given parameter combination themselves by passing the desired parameters to the function. The option opted for in this project, is to pass the sets of parameters with which training shall be performed and the function will then perform loops over the entire training process using each parameter combination possible. Most notably, for each training function, different hidden layer neuron quantities were performed and tested. As this process can result in multiple nested loops, it is important to set aside longer time frames so that training can be performed without interruption. It is also essential to save the results after each finished training and evaluation cycle for the given parameter combination. Doing this is a simple matter of saving the results inside a csv file. 
+
+\section{Performance Evaluation}
+When performing Multi-class classification, the resulting predictions can be difficult to evaluate, as once would have to go over each class and identify the correctly predicted samples for them. Luckily, MATLAB offers simple solutions to these types of problems. To acquire the desired evaluations, it is easiest to simply get the confusion matrix using the predicted and actual classes for the test set. To do so MATLAB has the confusionmat method, taking the predicted classes and actual classes as parameters to return the confusion matrix. Now it is simply a matter of accumulating all values that align on the diagonal on the matrix as true positive values and the ones that do not align, are accumulated for false positives and false negatives respectively.
+\subsection{Metrics}
+To understand the evaluation metrics acquired from the work, their calculations and meanings will be explained.
+\subsubsection{Confusion Matrix}
+The most basic metric to evaluate the classification of a neural network is to make a confusion matrix. A confusion matrix represents the number of correct and incorrect predictions of the network while also showing how many exactly of each class has been predicted correctly or incorrectly. A simple confusion matrix for a 2 class classification problem could look like this:
+\imagen{cm}{Simple 2 Class Confusion Matrix}{.5}
+The rows of this matrix show the class predicted by the network, while the columns show their actual class. Therefore, the diagonal shows where the actual class and the predicted class align. The cell "TP" represents the True Positives, meaning the case where the actual class was "positive" and the predicted class was also "positive". In the same sense the cell "TN" represents the predictions where actual and predicted class align with a "negative" class prediction. "FP" and "FN" reflect the predictions where the network has either predicted the class falsely as positive (false positive) or falsely as negative (false negative).
+
+As the number of classes increase for a classification problem, so do the rows and columns of its corresponding confusion matrix, making its readability more complex and slightly less readable.
+
+Using the information acquired from the confusion matrix, there are a number of possible metrics we can calculate to evaluate the networks performance:
+\begin{itemize}
+    \item \textbf{Accuracy}: The accuracy is the fraction of correctly predicted samples divided by the total number of samples of the prediction set. It is a measure to show how accurate the model can predict data and is a widely used metric for ANNs. It can however be misleading when using unbalanced datasets, as e.g. when having a dataset that consists of 90\% class 1 samples, a network could achieve a 90\% accuracy simply by predicting class 1 on every sample, which may be accurate, but makes the network as good as useless in actual practice. To counteract such occurences, there are additional metrics that can be used to prevent such misleading results.
+    
+    {
+\centering Accuracy = (TN + TP) / Total number of predictions \par
+}
+    \item \textbf{Precision}: The precision is the fraction of correctly predicted samples for a specific class divided by the total number of samples that predicted that specific class. It is used to determine how precise the model is for predictions of a specific class.
+
+    {
+\centering Precision =  TP / (TP+FP) \par
+}
+    \item \textbf{Recall} : The recall is the fraction of correctly predicted samples for a specific class divided by the total number of samples of that class. It shows how well the model can identify samples from that class among samples of all classes.
+
+    {
+\centering Recall =  TP / (TP+FN) \par
+}
+\item \textbf{F1-score}: This metric is used as a combination of the precision and recall values to evaluate the overall performance of the model. It is considered the most important metric for networks in which there is an imbalance between classes. This project used the f1-score on the best network results to further gain an overall view any dissonances between precision and recall, if there were any.
+
+{
+\centering F-1 Score =  (2*precision*recall)/(precision+recall) \par
+}
+\end{itemize}
+
+Precision, recall and f1-score are important metrics to prevent misleading results of unbalanced datasets. However, as the dataset used in this project is perfectly balanced, the usage of accuracy is a good enough measure, when trying to compare network results that have performed well.

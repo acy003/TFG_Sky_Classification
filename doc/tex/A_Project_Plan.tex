@@ -1,0 +1,73 @@
+\apendice{Software Project Plan}
+
+\section{Introduction}
+Project planning is an essential step towards keeping a consistent and structured workflow. It is even more so important when working in a team towards a shared goal. A good project plan can allow an easy overview of tasks and deadlines. In this appendix, the planning of this project will be presented.
+\section{Time Planning}
+As with every particular problem that can be encountered, the measures to solve that problem can be different from one case to another. In the same sense, the time planning for this project specifically did not require much of a complex structure or intensive deadline management. Therefore, the tools used to track tasks were rather simple, and as mentioned in the "Techniques and Tools" chapter of the report, the use of GitHub was the most common when it came to project planning.
+\begin{itemize}
+    \item \textbf{Issues} - \underline{GitHub} : Issues on GitHub, are specified tasks that need to be realised either within or outside of the project. The usage of these issues, allows for a quick overview of how many tasks are left, and the procedure of finishing these tasks can be documented very well upon either upload of the implementation of the task, or simply once the task had been done.
+    \item \textbf{Milestones} - \underline{GitHub} : In the same sense as issues, milestones represent more overarching goals within the project that either span multiple issues or require an extended period of time to complete.
+\end{itemize}
+
+\imagen{issues}{Simple Example of Issues in GitHub}{1.5}
+As can be seen in the figure \ref{fig:issues} above, the basic layout of an issue is a short description of the issue in the title, while a more extensive description can be written inside the issue's specifics. The shown example is a very simplified version of regular issues used for bigger projects, lacking a coherent numeric identifier for each issue to better reference it during discussions and updates.
+\pagebreak
+
+\section{Project Planning}
+\imagen{overview}{Project Plan overview}{}
+\subsection{Planning Phase}
+\textit{Timeline 26.02.2024 - 20.03.2024}
+
+With any project, the first thing to start with is planning the future road-map for the project itself. The planning starts off initially by commencing research into the sky classification topic and similar works that had delved into the same or similar issues before. Once enough research had been done, it was time to specify what the specifics of the ANN were going to be.
+
+Initial proposals were to identify the networks parameters and which ones would be used for experimentation. Additionally it is important to substantiate the works motivation for existing and emphasize itself as a study that can set itself apart from other works.
+
+\subsection{Data acquisition}
+\textit{Timeline 20.03.2024 - 08.04.2024}
+
+As the images for the dataset itself were already captured previously, acquiring the dataset was merely a matter of waiting for the database access to be granted, as well as the dataset being organised into a desirable structure. As this process spanned over the Easter holidays, it lead to minor delays towards the completion of this step.
+
+\subsection{Implementation and Initial Testing}
+\textit{Timeline 08.04.2024 - 03.05.2024}
+
+Once the dataset had been acquired, it was time to implement the network. Implementation first began by making a simple neural network model and gradually building on to it. Once a functional simple model had been created, initial testing with a few parameter combinations began to get a first look at the results it may deliver. Once enough tests were done, the given results were discussed and further adjustments to the project were made to ensure consistency.
+
+In order to have a safer way to have access to the results, more autonomy of the project script was considered and thus it was implemented. A few test runs were performed and given results were transcribed automatically.
+
+\subsection{Final Implementation and Experimentation}
+\textit{Timeline 03.05.2024-03.06.2024}
+
+After considerable execution time and analysis of experiment results, some final adjustments of the implementation were made to increase evaluation options and to better allow for result analysis. Once the final implementation changes were made, the experiments were performed again and stored inside the final version of the result spreadsheet.
+
+\subsection{Project Documentation}
+\textit{Timeline 10.04.2024-10.06.2024}
+
+This is the longest time period of the project, encompassing the writing of the report and annexes of this project. This is due to the documentation being a continuous process that is dependant on the progress of the project. It would have not been possible to write about project results without first having completely finished the experimentation of the project first. Therefore there were multiple times where the writing of the documentation had to be paused. 
+
+\section{Viability Study}
+In this section we will be taking a look at the viability of the project, both in regards to economical cost and effort, as well as in terms of legality of the work.
+\subsection{Economical Viability}
+This section will cover the economic cost of realising the project with brief predictions of the implementation and application cost of it.
+\subsubsection{Model Implementation Cost}
+
+The cost of collecting the sky image dataset can be quite high. Through the usage of a sky scanner (MS-321LR sky scanner\footnote{To get the precise pricing, a quote must be requested here: \cite{eko:scanner}, though the prices lie at a minimum of 30000€}) and a sky camera (SONA 201-D \footnote{Precise pricing requires a quote request: \cite{sona:cam}}), images can be captured and labeled for the dataset. A cheaper alternative, would be the purchase of a commercial camera that can capture images at a high dynamic range(HDR). The average cost of such a digital camera lies at around 600€ \cite{digi:cam}. Though it may be a cheaper alternative in terms of hardware cost, it does have its disadvantages. The camera would have to be set up and adjusted to the outdoor conditions in order to be able to capture the desired image format and to make capturing automatic. 
+
+As previously mentioned in the conclusion of the report, there still remains the option to further expand on the work and further research, experiment and fine tune each network variation.
+
+In order to do so, it would be necessary to hire research personnel for multiple months to continue this research. When taking into account the minimum inter-professional salary of 2024, this would lead to a monthly expense of 1134€ per researcher \cite{salary:gobEsp}, excluding additional costs such as social security and taxes.
+
+Furthermore, there would be a need to purchase a MATLAB license for each of the researchers, forcing a price of either 525€ for an indefinite license or an annual cost of 262€ for academic institutes, per researcher \cite{matlab:cost}.
+
+Each researcher would also need a functional laptop or computer to work on. The price range for these devices can greatly vary, depending on the needed functionality. Devices with a high processing GPU can be of great use when performing artificial neural network training. Those processing units do however require even greater funding \cite{digitaltrends:gpucost}.
+
+As the dataset used is not of an open source and belongs to the research group that captured said images at the University of Burgos, it would either be necessary to pay for access to the dataset, or one would have to acquire a dataset of sky images manually, either by outsourcing to specialists or by doing so themselves. Both options would demand an intensive time and resource investment, as payment would be required to both the people that setup the digital camera to capture the sky images, as well as having to manually classify each image after acquisition or through the use of a sky scanner, which would have to be purchased. Additionally, enough time would have to pass for all 15 sky conditions to be present at the capturing location. 
+
+
+\subsection{Legal Viability}
+In this final section, we will assess the legislation and licenses required to perform this project.
+
+Firstly, the acquired dataset was provided by a research group from the University of Burgos. It is important to note that the dataset is only available publicly in .mat format here: \cite{dataset:ANN}. If the datasets' usage is required, extensive communications with the university and research group would have to be made in order to get legal usage permission. As the photographs themselves are simply images of the sky, there would be no legal action required to capture sky images oneself for a dataset.
+
+In terms of licensing, most of the software used is open source and free to use. The software that this applies to are GitHub and Overleaf. The only license that needs to be paid for is MATLAB. The acquisition of a MATLAB license is a simple process and can be done quickly, simply through payment. Though excel is a Microsoft licensed software, its usage through its online version is free, this version however does not suffice for our intents and purposes, as we require a local version of excel to work with. There is however other software that allow the usage of csv files for free \cite{relatable:csv}such as, LibreOffice Calc, OpenOffice Calc, gedit and more.
+
+As a university student, my access to all of the aforementioned software has been free, granted by the licenses provided to students by the University of Burgos and my home university the University of Applied Sciences Hamburg.

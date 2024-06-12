@@ -1,0 +1,94 @@
+\capitulo{7}{Conclusions}
+In this final chapter, the most significant results of the work will be presented, as well as possible future improvements on which the work can be expanded upon.
+\subsection{Results}
+The development of this work went through multiple general stages.
+\begin{enumerate}
+    \item Firstly, the dataset was acquired and preprocessed, using the sky images provided by the meteorological weather station located on the roof of the Higher Polytechnic School building at the University of Burgos.
+    \item Secondly, the neural network was setup starting with the chosen dataset split using a set rng seed and then specifying the desired parameters and training function.
+    \item Thirdly, the network was trained using all parameter combinations, as well as repeating this step with the panchromatic version of the images.
+    \item Lastly, the performance of these networks was evaluated using the confusion matrix acquired from using the network to predict the classes of the test set. The evaluations for each parameter combination was then saved inside a csv file.
+\end{enumerate}
+
+\subsection{Training time}
+The training time is the duration the network needs to go through its entire training process and can be used to evaluate a network in terms of it being of interest. Its usefulness stems from use cases in which time is a critical factor for the training of the network.
+In this project, time was a factor as it allowed for even further comparisons between both the training functions as well as between the application of image processing before training. Network configurations that require longer training time scale even worse in this project, as the use of cross validation increases the total time spent training by almost k fold (k being the number of folds used). This was also made very apparent during the experiment and its training.
+
+\subsection{Evaluation}
+
+As previously mentioned, the more classes a classification problem has, the more complex and difficult to read its confusion matrix becomes. The confusion matrix structure for this project looks like this:
+\imagen{matrix}{Confusion matrix created by evaluating one iteration of the ANN}{.9}
+The numbers on the axes signify the corresponding sky category and the values inside each cell are the amount of samples that have been predicted for the specific value.
+Using the information acquired from the confusion matrices, we could calculate the evaluation metrics mentioned in chapter 5 and compare the results of the ANNs.
+
+\section{Project Results}
+After extensive training using different combinations of training functions and hidden neurons per hidden layer, the best networks for each training function came out like this:
+
+\subsubsection{Gradient Descent with Momentum and Adaptive Learning Rate Backpropagation}
+\imagen{gdx}{GDX evaluation results of both color channels in a radar plot}{}
+As we can see on the radar plot, GDX performed nicely in both iterations of its usage, that being using RGB images as well as Panchromatic ones. Both networks scored an above 50\% accuracy, with the panchromatic one scoring higher with 57\% and the RGB one with 55\%.
+
+As previously mentioned, this graph shows very well how precision, recall and the f1-score are not critical for the evaluation of a network using a balanced dataset, as their respective values are pretty much identical with the accuracy.
+
+Though the panchromatic network used more hidden neurons per layer, with a number of 80 neurons per hidden layer, making its network structure more complex, its training time remained substantially shorter than its RGB counterpart, which needed 64 seconds on average to perform one training cycle. The panchromatic network finished on average after 24 seconds. 
+
+This was a common occurrence during the entire experiment, as using panchromatic images, leads to only having to work through one third of the total values in comparison to RGB images which have 3 color channels and therefore 3 times the pixel values to deal with.
+\subsubsection{One-step Secant}
+\imagen{oss}{OSS evaluation results of both color channels in a radar plot}{}
+OSS performed even better than GDX in terms of accuracy and hidden neuron requirement. The radar plot shows an accuracy of 60\% for OSS using RGB images and a hidden neuron usage of 40. The OSS network with panchromatic images lands right behind with a 59\% accuracy and a hidden neuron usage of 50.
+
+However, there is a big downside in the OSS' RGB network, that being the enormous training time, which was the highest out of every training function. The RGB network of OSS needed on average 202 seconds to finish training, which is a lot worse compared to all the other networks. Its panchromatic counterpart however only needed 44 seconds on average, making it a viable alternative that doesn't require such strenuous training time.
+
+Both networks remain consistent with the previous assumption that precision, recall and f1-score remain consistent with the accuracy, due to the balanced dataset.
+
+\subsubsection{Resilient Backpropagation}
+\imagen{rp}{RP evaluation results of both color channels in a radar plot}{}
+The worst performing training function in this work was the rp function. As seen on the radar plot, its accuracy is severely lacking, with a low 25\% for both versions. It is also the only network where its precision, recall and f1-score values differ from the accuracy value. In this case the precision was always lower than the accuracy while the recall was higher, the f1-score therefore, scored in the middle of both values.
+
+The training functions poor performance may be due to it not being suitable for this type of classification problem, or it simply requires a more substantial amount of parameter fine tuning to perform well.
+
+Its training time was the lowest out of all networks for the panchromatic channel this however is only due to the fact that it reached the stopping criteria of failing too many validation checks \footnote{Validation check failure being the aforementioned validation set seeing a worse performance in a training iteration than the previous iteration.} in a row very fast.
+
+Its RGB counterpart however delivered a poor training time on top of the poor accuracy results.
+
+\subsubsection{Scaled Conjugate Gradient}
+\imagen{scg}{SCG evaluation results of both color channels in a radar plot}{}
+SCG was the most consistent training function during its entire training phase. It scored slightly above the rest with a higher accuracy by a small margin, securing itself the highest accuracy with 61.3\% and 62.4\% for its RGB and panchromatic version respectively.
+
+Its recall, precision and f1-score values remain consistent with the accuracy, as is expected. Its performance was the best using a higher number of neurons, when comparing it to the other training functions' performances using such a higher number. Its required training time does leave some room for improvement, as it finished with a decently high time of 85 seconds on its RGB version.
+
+
+\subsection{Overall Results}
+After reviewing the results of each training function and its color channel alternative, it can be clearly said that there are alternatives to using the Scaled Conjugate Gradient when it comes to sky classification under the CIE standard. While SCG has the highest accuracy of all the functions, OSS and GDX remain close behind with only a marginally smaller accuracy. It is also important to note that these accuracies are not final, there is still the possibility that these values can be further improved with more in depth parameter fine tuning, which may take an extensive amount of time. 
+
+It can also be said that using GDX may come in handy more than SCG in some use cases where a lower training time is required. Adding to that, it can be clearly seen in the table \ref{table} that in almost every case, the performance of the panchromatic version of the network both performed better in terms of accuracy as well as training time. This revelation is also very useful, as models that may have more time critical appliances may prefer using panchromatic images. It is important to note, that if panchromatic images are used for training, then panchromatic images need to also be used when using the trained network later on to predict, thus there remains the possibility that the time loss from having to transform every sample to the Y channel may outweigh its time saving from training.
+
+Overall it can be said that sky classification under the CIE standard using Artificial Neural Networks is a potential alternative to using the traditional way of using a sky scanner. The initial acquisition of data to use for the network may be strenuous, but it can pay off in the long term once the network has been fully trained. It is also certain that the SCG training function is not the only viable training function for networks specializing in this task.
+\tablaSmall{Best experiment result for each training function and color channel }{l c c c c}{results}
+{ \multicolumn{1}{l}{T Function} & Color channel & Accuracy & Hidden Neurons & Training Time s \\}{ 
+GDX & RGB & 55.46 & 50 & 64.15\\
+GDX & Y &57.69& 80 & 23.92\\
+OSS & RGB & 60.27 & 40 & 202.66\\
+OSS & Y & 58.93& 50 & 44.305\\
+RP & RGB& 25.96 & 80 & 84.615\\
+RP & Y & 25.42 & 50 & 11.36\\
+SCG & RGB& 61.33& 70&85.3\\
+SCG & Y &62.4 & 90 &36.086\\
+}
+\pagebreak
+\section{Future Lines of Work}
+
+In this last section of the report, possible improvements that can be applied to the project in the future and further research aspects are presented.
+
+\subsection{Parameter Fine Tuning}
+While the results delivered by the experiments are viable and comparable to other works, there still remains the option of further fine tuning of parameters specifically for each training function. This step of fine tuning is a very time consuming process and may require deeper insight into each training functions calculations. It is also possible that other training function alternatives remain that may work just as well or even better than current experiment results. Training functions discovered in the future can also be applicable to this classification problem and should be experimented with.
+
+In the same sense, other image processing techniques may harmonize better with specific training functions than the one used in this work. The same applying to any future image processing techniques that may be discovered.
+
+
+\subsection{Interface}
+As it stands now, the interface of this project remains rather barren. Through the usage of a MATLAB script can network training be performed. The required setup for it however is very specific, with a very specific dataset structure. The same can be said about the MATLAB script that is responsible for independent predictions, using a saved network.
+
+Both scripts could be implemented into a proper user interface that visually helps setup the data and guides the user through the training/prediction process.
+
+\subsection{Deployment of the ANN for Sky Classification}
+Once the ANN has been fine tuned to such a degree that its prediction accuracy can be considered consistent (preferably at least a 70-80\% accuracy), deployment of the network could be considered. One form of using the network could be to make local projects that require the classification of the sky for either e.g. architectural design or solar energy installation. To do so, the local researchers would need to set up a digital camera pointing towards the sky through a fish-eye lens to capture sky images. After enough images have been taken, the ANN can be used to classify all the sky types of the newly acquired dataset. Using the new prediction data (even if not a 100\% accurate), can help with the planning of the aforementioned use cases, by providing a general overview of the typical sky types that occur frequently at the given location.

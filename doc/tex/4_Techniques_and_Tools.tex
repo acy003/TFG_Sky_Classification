@@ -1,0 +1,111 @@
+\capitulo{4}{Techniques and Tools}
+
+This chapter will describe the techniques and tools used in the project, as well as the structure of the data used to carry out the project.
+
+\section{Data Description}
+The data used to train and test the ANN proposed in this study were experimental sky images recorded at a meteorological weather station located on the roof of the Higher Polytechnic School building at the University of Burgos \cite{skyClassANN-Granados-Lopéz}. The photographs can be classified into 15 different types as per CIE standard \cite{García-Ruiz} depending on the sky condition and luminance distribution. Each image has a resolution of 1158x1172 pixels, recorded with the RGB color model (8 bits per pixel, ranging values from 0 to 255). In Figures \ref{fig:sky}, you can see examples of each sky type. The overcast type covers types 1-5, partially overcast covers 6-10 and clear sky covers types 11-15. The dataset consists of 1500 images in total (selected from more than 80000 sky images). 100 images have been provided for each sky type. The images selected were characterized by their superior consistency with the pattern defined by the CIE standard for the specific sky category, thus making for great samples to be used to train the neural network.
+\imagen{dataset}{Simple Visualization of the dataset structure}{}
+\imagen{sky}{Images of all sky types recorded in Burgos, Spain}{1}
+
+\section{Techniques and Tools}
+
+\subsection{Languages}
+\subsubsection{MATLAB}
+MATLAB is a high-level programming language designed for engineers and scientists that expresses matrix and array mathematics directly. It can be used for basically anything, from running simple interactive commands to developing large-scale applications \cite{mathworks:matlab}. Its dynamic range of usage, stems from its wide variety of toolboxes, readily available for the user to download and install. The most prominent toolbox we will be using for this project, will be the Deep Learning Toolbox, which allows us to create and train Artificial Neural Networks. Where MATLAB comes handy the most, are its thousands of built-in functions for common mathematical, scientific and engineering calculations. The availability to quickly plot and visualize your data, using the variety of built-in plot functions, makes for quick and simple visualizations of many types of data, including numeric, string, date-time, categorical and even structures.
+
+One of MATLABs most common uses, is the creation of scripts to automate work. This allows for entire programs to be run automatically or to be run individually in separate sections. Adding high-level programming constructs, allows for more dynamic scripts, and with its easy to access plot and save functions, script results can be easily saved for later analysis. 
+
+In this work, MATLAB has been selected as the programming language, not only because of its aforementioned dynamic range of usage, but also due to it being one of the most accessible programming languages for Neural Network application, as it both offers easy to understand examples of different types of Neural Networks \cite{mathworks:ANNs}, as well as the Deep Learning Toolbox containing the desired ANN models that are required for this project.
+
+\subsubsection{Deep Learning Toolbox}
+MATLABs Deep Learning Toolbox, is an extension that allows the user to easily develop or test simple or complex Neural Networks. MATLAB offers plenty of example networks for each type of Machine Learning problem (classification, regression, clustering etc.) and makes AI easily accessible to beginner developers. 
+
+\subsubsection{Python}
+One alternative to using MATLAB, is the high-level, general-purpose programming language Python, which design philosophy emphasizes code readability and dynamics \cite{python:wiki}. It is a very popular programming language, due to its ease of use and its wide range of applications. As mentioned, Pythons design, emphasizes dynamics, meaning it is a dynamically typed programming language, which means that variables do not need to specify their data type when declared. When using Python for Artificial Neural Networks, one of the available libraries for such a task, are the Scikit-learn (sklearn) libraries.
+
+\subsection{Tools}
+\subsubsection{LaTeX}
+This report and its attached annexes were made using LaTeX, which is a software system for typesetting documents. It is widely used in academia for publication of scientific documents and technical note-taking in many fields. LaTeX focuses its approach on simplifying content format by separating format and content in such a way that the user can focus their attention on describing the content, while the system automatically handles the formatting. To help with that, the software provides the user with ready-made commands for formatting and layout requirements for chapter headings, footnotes, bibliographies, cross-references etc. \cite{latex:wiki}.
+
+\subsubsection{GitHub}
+GitHub is a developer platform, that allows developers to create, store, manage and share their code. Through its use of Git software, it allows enables the distributed version control of Git in addition to access control, bug tracking, task management, software feature requests and wikis for every project \cite{github:wiki}. 
+
+In this project, a repository has been created\footnote{\url{https://github.com/acy003/TFG_Sky_Classification}} that contains all the source code for the project. As this is not a team project, the repository has only been used to keep track of issues, and for version control after major changes within the code. The repository has been carried out privately without public access. 
+
+The features of this tool have been very useful for work, being able to track issues (objectives) while at the same time keeping an overview of which version commit has closed which issue. However as the project itself does not necessitate a very complex nor grand code structure, its usage during development in regards to issues and milestones has been very limited. Additionally, the documentation of the project remains very scarce as well, as most of the code can be easily read through thanks to MATLABs accessibility. The repository does however remain a surefire way to keep access to the content of the project at any time and from any place as long as the GitHub user has access to it.
+
+\subsubsection{Scikit-learn (sklearn)}
+The aforementioned alternative to MATLAB, is using Python with the Scikit-learn library, specifically its Neural Network package, however it is important to note, that sklearn does not offer GPU \footnote{GPU is a graphics processing unit that allows for faster execution of calculations in regards to graphics and visualizations on computers. In machine learning, they may be used to speed up the training process.} support, therefore not making it optimal for larger scale applications \cite{sklearn:NNs}.
+
+Sklearn is a free and open-source machine learning library for Python programming. It offers a various selection of classification, regression and clustering algorithms. It is a very popular library, that is based on other popular libraries such as NumPy, SciPy and matplotlib. Its Application Programming Interface (API) is easy to use, which allows beginners in the Deep Learning field, to quickly develop prototyp machine learning models and experiment using the vast selection of algorithms and parameters \cite{sklearn:wiki} .
+
+\subsubsection{Microsoft Excel}
+Microsoft Excel is a spreadsheet editor developed by Microsoft. It allows users to calculate, analyse and organize data efficiently and easily. \cite{excel:wiki} It has been used in this project to store the ANN results, more specifically the evaluation metrics, in data tables. All values have been saved in the csv (comma separated values) format. Excel was chosen as it is a calculation tool that offers both ease of access and a variety of options to analyse and visualize data, as well as MATLABs options, to save results easily inside of csv files.
+
+\subsection{Techniques}
+
+\subsection{Preprocessing}
+As mentioned in the introduction, the preprocessing of the database is one of the most influential factors for the ANNs final performance, and its importance was taken into account for this project. Before the dataset can be used for training, there are multiple steps it has to go through before it is ready.
+
+\subsubsection{Resizing}
+First and foremost, the images inside the dataset have to be reduced in size, as the captured images have a very high resolution of 1158x1172 pixels, which would make them very costly in terms of computational complexity for the ANN, as well as making it drastically more difficult for the network to classify based on recognized patterns, as having more pixels would mean that there are more values that the network has to "memorize" and adjust to. Thus, we begin the preprocessing by shrinking the image size down to a more manageable size (in this case, a size of 117x128 pixels was chosen), without inhibiting that network's classification performance. The network now has less values to deal with and doesn't require as much computational power to work through each image. 
+
+The resizing performed by the previous research \cite{skyClassANN-Granados-Lopéz} had shown that a reduction to 110x110 pixels did not negatively influence performance and therefore was safe to use. For this project, the decision was made to shrink the images to 117x128 pixels instead, in order to keep the height and width ratio of the images in tact.
+
+\imagen{compare}{Sky Image before and after resizing.}{}
+
+\subsubsection{Color channel}
+As mentioned in the project objectives, we have results from previous research on this topic \cite{skyClassANN-Granados-Lopéz} available, that tells us of the improving qualities of image-preprocessing in regards to the color channel used. Thus it was decided that using one of the best scoring image processing methods used in the previous work will be tested in this work.
+
+The method chosen, is to convert the RGB images into panchromatic images, which are images that "combine" the information from the R, G and B bands\footnote{The red, green and blue color values of a pixel respectively.} into a singular gray-scale value \cite{matlab:panc}. The resulting image is a grayscale image with a high spatial resolution that uses a single-band, the so called Y channel \cite{sDirect:panc}. Figure \ref{fig:panimg} shows 3 panchromatic images of the clear, partly cloudy and overcast sky types respectively.
+Therefore, for this work, training was performed using RGB images and panchromatic images respectively, comparing their performance and evaluating them respectively.
+\imagen{panimg}{Sky Images after transformation to panchromatic images}{}
+
+\subsubsection{Class Extraction}
+When creating a supervised neural network it is important to have the "solution", the so called target value, for each sample that will be used for training and testing, which in our case would be the sky category for each image inside of the dataset. The acquisition of the target values for the dataset is as mentioned in the introduction, a long and arduous process of manually labelling each image to its corresponding class. 
+
+In order to use the target values that have been set during the dataset acquisition, MATLAB offers a multitude of ways. The most common one is to simply create a csv spreadsheet, containing a matrix of binary values that represent each sample's class values, e.g. a sample of sky type 4, would have 0 values in every row except for the 4th row, depicting their class label. This spreadsheet can be used during training as a guide for the network in if it needs to adjust its corresponding output for each sample.
+\imagen{labelcsv}{Example structure of a class spreadsheet, each column represents a sample image, their row in which the value is 1, points to their corresponding class}{}
+
+The more simple and convenient way, is offered by MATLABs "imageDatastore" function, in which a sample's class label, is simply the name of its parent folder. This makes it possible for users to simply create a folder for each desired class, and move the corresponding images inside the corresponding class folder and MATLAB will apply the label for each sample automatically.
+
+\imagen{labelfolders}{Example structure of class folders, each containing the images of their corresponding class}{.3}
+
+\subsection{Network Training}
+
+\subsubsection{Cross-Validation}
+Cross-validation is a model validation technique used to evaluate a neural networks performance in making predictions on unknown data, that it hasn't been trained on. It is an important technique for ANN training as it is crucial that the model does not overfit its algorithm on the training set, meaning that it should not adjust its weights to simply perfectly fit the training examples, but that it should be capable of classifying samples on any chosen sample, thus making sure its ability to generalize is functioning well \cite{matlab:cv}.
+
+The cross-validation process can be described as followed:
+\begin{enumerate}
+	\item Data Division: Firstly, the training dataset is divided into k folds of equal size. A common number of folds is usually 5 or 10. For this project, 5 folds were used, as the dataset is not big enough to warrant smaller fold sizes.
+	\item Training and validation cycle: During training, a training set and a validation set are used. These are chosen from the folds, such that training will use the majority of the folds and validation uses the remaining fold(s).
+    \item  Training cycle: In each training cycle, the network is trained using the training data chosen and network weights are adjusted accordingly.
+    \item Validation: After each training cycle, the network predicts the target values of the validation data set and the results are evaluated to measure the networks performance. If the networks performance on the validation set worsens (thus failing a so called validation check) multiple times in a row, then training is terminated.
+    \item After training and validation completion, the network is used on a separate test set, and its performance is evaluated.
+    \item Repetition: Steps 2-5 are repeated k times, with the chosen fold combination for training and validation being different in each iteration.
+    \item Results: After the k repetitions, the average results obtained of each iteration are averaged out, which shows the the model's overall performance. 
+\end{enumerate}
+\imagen{cv}{Cross-Validation Structure}{.72}
+\subsubsection{Training Functions}
+One of the main objectives of this study is to research the availability of other viable training functions that can be used for sky classification. As a starting point 3 alternative training functions were chosen for the network to train with in addition to the Scaled Conjugate Gradient training function from the previous research \cite{skyClassANN-Granados-Lopéz}.
+\subsubsection{Scaled Conjugate Gradient}
+Scaled Conjugate Gradient (SCG) is an algorithm that combines the features of the conjugate gradient method and the Levenberg-Marquadt algorithm to train neural networks \cite{matlab:trainscg}. Through the usage of the initial gradient of the error function, it establishes a search direction for weight adjustment. During training, it uses scaling to ensure the stability of the weight adjustment \cite{Moller-SCG}.
+\subsubsection{Resilient Backpropagation}
+Resilient backpropagation is an algorithm used mainly to tackle harmful effects caused by the usage of sigmoid transfer functions inside the hidden layers of a neural network. It introduces a separate update value that determines the size of the weight change according to a factor delta. The update value increases by a factor "delta\_inc"  whenever the derivative of the performance function has the same sign for two successive iterations. In the same sense, the update value decreases whenever the derivative of the performance function is different from the previous iteration \cite{matlab:trainrp}.
+
+{
+\centering dX = deltaX.*sign(gX) \par
+}
+\subsubsection{Gradient Descent with Momentum and Adaptive Learning Rate Backpropagation}
+Gradient Descent with Momentum and Adaptive Learning Rate Backpropagation (Gdx) is an algorithm 
+that combines adaptive learning rate (lr) \footnote{Adaptive learning rate, is a method for the model to adjust its learning rate during training. Usually this results in a high learning rate at the beginning, which decreases towards the end of training.} with momentum training (mc)\cite{gg:momentum}.
+
+{
+\centering dX = mc*dXprev + lr*mc*dperf/dX \par
+}
+dXprev represents the previous change to the weight or bias.
+
+\subsubsection{One-step Secant}
+The one-step secant (OSS) method, is an attempt to bridge the gap between conjugate gradient algorithms and secant algorithms \cite{ss:secant}. The OSS method requires less storage and computations per epoch than BFGS (Broyden–Fletcher–Goldfarb–Shanno) algorithms, but needs more storage and computation per epoch than the conjugate gradient algorithms. Its purpose as a bridge between conjugate gradient and secant algorithms is also made in hopes of creating a lower computational requiring alternative to the BFGS algorithm \cite{matlab:trainoss}. 
+

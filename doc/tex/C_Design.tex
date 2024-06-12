@@ -1,0 +1,49 @@
+\apendice{Design}
+
+\section{Introduction}
+This appendix will briefly go through multiple design choices, both design choices made and ones that were already prerequisite.
+\section{Data Design}
+As previously mentioned in the report, the dataset used was provided by a research group of the Higher Polytechnic School of Burgos, granting access to 1500 sky images of the Burgos sky. The images were captured using a commercial SONA 201-D sky camera. The camera was stationed at the top of the Higher Polytechnic School building and captured images every 15 seconds \cite{skyClassANN-Granados-Lopéz}. The images captured, have a high resolution of 1158x1172 pixels recorded with the RGB color model. A fish-eye lens was used to achieve the spherical look that can be seen in the report.
+
+The sky types captured by the images were determined, using the Normalized Luminance method \cite{skyClassANN-Granados-Lopéz}. It is important to mention that sky classification under the CIE standard using photographs, requires  High Dynamic Range (HDR) images, in order to capture the full sky luminance range \cite{skyClassANN-Granados-Lopéz}.
+\tablaSmall{Technical specifications of the sky scanner \cite{skyClassANN-Granados-Lopéz}}{l c c c c}{skyscanner}
+{ \multicolumn{1}{l}{Model}  & MS-321LR sky scanner \\}{ 
+ FOV & 11\degree\\
+Luminance &0 to 50 kcd/m\textsuperscript{2}\\
+ Radiance & 0 to 300 W/m\textsuperscript{2}\\
+ A/D convertor & 16 bits\\
+ Calibration error & 2\%\\
+}
+\tablaSmall{Technical specifications of the sky camera \cite{skyClassANN-Granados-Lopéz}}{l c c c c}{skycamera}
+{ \multicolumn{1}{l}{Model} & SONA 201-D \\}{ 
+Sensor & CMOS-2.3 MP\\
+Vision angle& <180\degree (fish-eye lens)\\
+Operating temperature& -40\degree C to 55\degree C\\
+Image format & RAW\\
+}
+\pagebreak
+\section{Procedural Design}
+Initially the focus of the proposed work was to create a neural network that focuses on cloud classification, differentiating between different types of clouds. However during the planning phase for the design, it was decided that the network would be focused on sky classification due to time constraints related to the data acquisition of the initial proposal. When designing an ANN it is most important to start off with understanding the data that is provided or needs to be acquired, as well as a clear definition of the problem, that being: What problem is the ANN supposed to solve? Should it be a classification, regression or clustering problem? Thus the decision for a sky classification problem was made. 
+
+As is standard for all machine learning problems, the acquisition of data was prioritised first, then the shift towards implementation, experimentation and evaluation could begin
+
+\section{Architectural design}
+In terms of architectural design, the choices made for ANNs tend to be very similar. Firstly, after collecting the necessary data, it is important to investigate whether data cleaning\footnote{Data cleaning refers to the handling of missing values inside the data, outliers that may be harmful for training, or noisy data that hinders improvement.} is required. As the dataset provided in this project had been pretty much perfect, there was no need for any data cleaning.
+
+Once that step has been finished, the decision whether data transformation is needed is made. Data transformation can help neural networks understand the data more easily or make its data structure more standardized. In the case of this project, the images provided needed to be resized to a smaller size, in order to not overload the computation device, as well as reduce the number of values the neural network has to "memorize", which also speeds up the training time significantly and reduces the computational power requirement for the network.
+
+Additionally for the sake of this experiment, the network was trained with both images of the RGB color channel and the same images using the Y color channel respectively.
+
+The final decision that needs to be made for the data is to decide how to split it for the ANN's training. Data splitting usually splits the dataset into 3 splits, training set, validation set and test set. Common splits are 70/15/15\% or 80/10/10\% for training/validation/test respectively. It is very important that all splits contain multiple samples of each class that is going to be classified. The variety required by the training set is most important as its one of the most influential factors in how well the neural network will be able to generalize, that meaning how well it can classify on unknown data without reliance on already known data.
+
+The next design decisions are made in regard to the network's architecture. As mentioned in the theoretical concepts chapter of the report, ANNs consist of 3 different layers, the input layer, the hidden layer(s) and the output layer. The design of the hidden layer is especially important as the layout required greatly varies from problem to problem. The most common decisions that need to be made are the number of hidden layers and the number of hidden neurons in each of them. For this project, after a few small experiments, the conclusion was made that this type of problem does not necessitate more than 1 hidden layer. Thus, training was performed using only 1 layer. The number of hidden neurons required can be very different based on the next parameter that had to be decided upon. So, for the sake of research, training was performed using a different number of hidden neurons, using every combination possible within a set interval of hidden neuron values.
+
+The parameter that was being referred to is the training function. As one of the main focuses of this project is the comparison of viability of different training functions for sky classification, 4 training functions were chosen: One-step Secant(OSS), Gradient Descent with Momentum and Adaptive Learning Rate Backpropagation (GDX), Resilient Backpropagation (RP) and Scaled Conjugate Gradient (SCG). SCG was chosen as a comparative measure to the other training functions, as its viability had already been proven by previous work \cite{skyClassANN-Granados-Lopéz}. The other 3 training functions were chosen based on their usage of backpropagation for training, which can be a very useful measure for pattern recognition tasks such as this.
+
+As mentioned in the theoretical concepts chapter of the report, the ANN has many more parameters that can be specified, however their significance was not a focus for this work, therefore mostly the default initialisation values for them were used for this project, as they delivered viable results. 
+
+Once the parameters have been set, training can begin. After the training is finished, further design choices can be made, such as which evaluation metrics to use to review the network's performance. The metric choices made for this work were, accuracy, precision, recall and training time. The f1-score was then calculated after choosing the best network configurations for each training function.
+
+As the classes of the dataset were perfectly balanced, with a sample number of 100 images per class, the usefulness of precision, recall and f1-score may be seen as unnecessary. However, they are still a safety measure, to keep an overview as to whether a network truly does have the calculated accuracy.
+
+The decision to save all evaluation metrics inside a csv file was also made to enable a quick and easy way to sort the acquired data, as well as have the possibility to create plots that show the differences between different parameter choices.

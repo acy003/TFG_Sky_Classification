@@ -1,0 +1,99 @@
+\apendice{Programmer Manual}
+This appendix explains how the directories are organized and how to execute the network.
+
+\section{Directory Structure}
+The directories contain the datasets, scripts and result data required to both evaluate the network as well as use it for future purposes. The directory contains the following folders:
+\begin{itemize}
+    \item \textbf{Training Dataset}: The most important and easy to understand folder. It contains all the sky images that will be used by the network for training and testing. The folder contains 15 subfolders representing the 15 sky types and each subfolder contains a folder for each individual images. It is crucial that the dataset folder only contains the 15 class folders, when using the database provided by the UBU research group, it is important to extract the extra folder "cielosmezcla" outside of the main dataset folder, as that one will be used for the prediction dataset.
+    \item \textbf{ANN Training Script}: This script contains all the functions that are used for the network training and testing, as well as the evaluation metric calculations that are stored inside a csv.
+    \item \textbf{ANN Prediction Script}: This script contains all the functions and procedures that are used for the network to predict on a new dataset. It also creates a csv file where the results of the prediction are saved.
+    \item \textbf{Training Result Spreadsheets}: These csv files contain all the results from ANN training, including the date and time of training completion, accuracy, precision, recall, number of hidden layers, number of hidden neurons, training function used and training time. There are separate spreadsheets for training with each color channel.
+    \item \textbf{Resized Images Folders}: These folders contain the newly resized images that were required for training and prediction and were transformed during preprocessing. There are separate folders for the RGB images and the panchromatic images.
+    \item \textbf{Confusion Matrix Folders}: These folders contain the confusion matrices of all test results for all network variations. Their names indicate the date and time, training function used, as well as hidden layer size and number. There are separate folders for each color channel.
+    \item \textbf{Best Network}: This .mat file contains the best network acquired from the ANN training. The network has to be used to predicted images of the same color channel with which it was trained on. It can be loaded using the MATLAB load method.
+    \item \textbf{Prediction Dataset}: This folder contains all samples that are to be used for prediction after a network has been chosen from experimentation.
+    \item \textbf{Prediction Results}: This csv spreadsheet contains the predictions performed by the ANN on the prediction dataset.
+\end{itemize}
+It is important to keep in mind that the directories should be kept available to the MATLAB workspace, as many of them will be edited during script execution. It is also essential that the result spreadsheets are not accessed during training, as it would deny MATLAB editorial access to the file, leading to execution failure.
+
+\section{Programmer Manual}
+\subsection{Network Training}
+When trying to alter or adjust the network training parameters/dataset, it is most important to correctly load the desired dataset. The programmer has to keep in mind that the structure of the dataset directory is correct and consistent. If it is not up to the set standard, the programmer must either change the directory structure, or adjust the loading and label splitting method inside of the scripts.
+
+Beginning with the network model script, the dataset directory should have the following structure\footnote{The names of the image folders have been altered for privacy reason, the ones in the figure are only example names.}:
+
+\imagen{folders}{Directory Structure Standard of the Dataset}{}
+
+If a change in folder name/structure is required, the programmer has to alter these 2 functions:
+\imagen{load}{ImageDatastore method provided by MATLAB that loads the dataset}{}
+
+Firstly, if a name change of the image files is performed, then the parameters for the imageDatastore method\cite{mathworks:imgDstore} in figure \ref{fig:load} must be adjusted, as it currently loads all "cam.png" files inside the specified folder.
+
+\imagen{setlabels}{Function that sets the labels of the samples by splitting their file path until the numerical value of the class folder has been acquired}{}
+
+Should either the directory structure or folder names be changed, then the setlabels function has to be modified by the programmer. As it currently stands, the function takes the file path of all images and splits it using the parent folder "Dataset" and further splitting them until the class folder (e.g. "tipo1) has been reached. Then the class folder name is split off at the "tipo" part and the sky type number is acquired. Changing the name of this folder or the structural layout of the directories would require different splitting.
+
+Should the need arise to change the script so the network is only trained using images of 1 color channel, then the following needs to be changed:
+
+\imagen{panc}{Parameter that will decide whether panchromatic images will be used (value == 1) or RGB images (value == 0)}{}
+
+The variable seen in figure \ref{fig:panc} needs to be changed appropriately to the desired color channel, 1 for panchromatic, 0 for RGB.
+
+\imagen{2nd}{Second set of training that would usually be performed using the RGB channel}{}
+
+Should the previously mentioned change be applied, then there is no need to perform training using both color channel variations. Therefore, the 2nd set of training that is performed after the first set has been completed can either be deleted or commented out \ref{fig:2nd}.
+
+If the need arises to either shorten or extend the list of different parameter combinations or the need to further fine tune other parameters of the network, then the following can be done:
+
+\imagen{funcs}{Hidden Neurons Quantity and Training Functions used arrays}{}
+
+Adjusting these arrays \ref{fig:funcs} specifies the parameter combinations that will be used during the training cycles. The network will be trained with every training function and for each training function, with every hidden neuron quantity. Shortening these arrays would reduce the number of training instances performed, while extending them will do the opposite. The total number of training instances is n*m, with n being the number of values in the "neurons" array and m being the number of training functions in the "funcs" array.
+
+In order to further fine tune other parameters of the network, the "setupNetwork" function can be further expanded, either through hard-coded value assignments or through additional parameters for the function \ref{fig:setup}.
+
+\imagen{setup}{Setup Network Function of the MATLAB script}{}
+
+If there is a need to use further evaluation metrics or the desire to save more results from training and/or testing, then a few changes must be done.
+
+\imagen{results}{Array structure that contains all the results that are going to be saved}{}
+
+Firstly, the result array \ref{fig:results} needs to be expanded to save the additionally wanted result values.
+
+Once that is done, the "saveResults" method \ref{fig:saveResults} needs to be adjusted so that the header of the result file contains the new variable name(s)\footnote{Via the "headers" variable}, as well as the final writing access into the file \footnote{Via the final "fprintf" of the method}, containing the added variable(s) value(s). It is important to note that when adding a variable for both header and variable value, the corresponding "fprintf" function call needs to include an additional format specifier\footnote{The letter (s,d,f etc.) followed by "\%" inside the fprintf method call string} according to the format that the variable will have. Headers are always "s\%" so that is always a simple addition..
+\imagen{saveResults}{SaveResults function of the MATLAB script, it opens a csv file, or creates a new one if it doesn't exist and writes the newly acquired results into it.}{}
+
+\subsection{Prediction using the Network}
+When predicting new data using the trained network, there are a few things that need to be taken into account. Obviously, the network needs to be trained already and it needs to be trained using images of the same color channel for which the prediction dataset is going to be used. In order to specify which color channel shall be used for prediction, the following variable needs to be adjusted \ref{fig:predvar}:
+
+\imagen{predvar}{Variable that decides whether RGB or panchromatic images will be used for prediction}{}
+
+A variable value of 1 signifies panchromatic images being used, a 0 means RGB images shall be used.
+
+To Load the prediction dataset, a similar structure as the training dataset needs to be followed.
+
+\imagen{predictSet}{Prediction dataset directory structure}{}
+
+As seen in figure \ref{fig:predictSet}, the dataset follows a similar structure as the training dataset. The difference however, lies in the face that the sky image class types should preferably be unknown, so that the network can show its functionality. The directory structure does not need to follow the exact structure as seen in the figure. The only important aspects are that the root folder of the dataset has the name "predictSet" and that all the images are in separate folders, to allow the same name usage "cam.png".
+
+Should a change in name or structure be required, then the following function call\cite{mathworks:imgDstore} needs to be adjust \ref{fig:loadPredict}:
+
+\imagen{loadPredict}{ImageDatastore function call to load the prediciton dataset}{}
+\section{Project compilation, installation and execution}
+For a detailed explanation of how to install MATLAB and its necessary extensions, please refer to appendix E.
+
+Once MATLAB has been succesfully installed, the process of executing the scripts is quite simple. Firstly, it is most convenient to open a MATLAB instance and open the desired script (either tfgModel.m to train the network or predict.m if a network has already been trained and predictions are desired). The TFG folder should preferably be saved inside of the MATLAB workspace folder. Once the script has been opened, check the directory overview on the left side of the MATLAB instance \ref{fig:direct}. The TFG folder should be visible there. In order for the script to work more conveniently, double-click the TFG folder to make it the current directory of the work space.
+
+\imagen{direct}{Directory overview of MATLAB}{}
+
+Once that is done, the entire script can either be run step by step by using the "Run Section" or "Run and Advance" buttons, or by simply pressing the "Run to End" or "Run" button to run the complete script. The buttons can be found at the top under the "EDITOR" tab.
+
+\imagen{run}{Run buttons in MATLAB}{}
+
+\subsubsection{Running the training script (tfgModel.m)}
+Running this script to completion can take hours once the "trainSkyNetwork" function has been called, as the script then starts looping over every parameter and training function combination possible to train networks. So it is best to either use the "Run" button or the "Run to End" button once the selected section contains the aforementioned method.
+
+Once the script has been fully executed, you will find several new folders within the current work directory. These folders will contain the resized images of both color channel variations, as well as the confusion matrices of the test results. The results of each color channel training can be found inside their respective csv files "results.csv" and "resultsY.csv". The best networks found during training for each color channel will also be saved inside a MATLAB data file, "Skynetwork.mat" and  "SkynetworkY.mat" respectively.
+
+\subsubsection{Running the prediction script}
+Once this script has been run to completion, the resized dataset of the prediction dataset can be found in their respective folders. Additionally, the result spreadsheet of the model's prediction can be found as well in "predictions.csv".
+\imagen{example}{Example of how the directory content should look like after running both scripts}{}

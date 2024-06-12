@@ -1,0 +1,98 @@
+\apendice{Requirements Specification}
+
+\section{Introduction}
+This section will contain the requirements for the project as well as its use cases.
+
+
+
+\section{General Objectives}
+The main objective of this work has been to find alternative training functions for Artificial Neural Networks that adapt for sky classification under the CIE standard. In addition to that, the application of image processing, tested by previous work \cite{skyClassANN-Granados-Lopéz} is applied to the current objective to further reassure its results.
+\section{Catalogue of Requirements}
+\subsection{Functional Requirements}
+\begin{outline}
+    \1 \textbf{FR-1} The network must use the specified dataset for its training and testing.
+    \1 \textbf{FR-2} Training and testing must be done equally for each training function: SCG, OSS, RP and GDX.
+    \1 \textbf{FR-3} The dataset split for the training process must be replicable.
+    \1 \textbf{FR-4} Network training must utilise cross-validation to prevent overfitted results.
+    \1 \textbf{FR-5} All samples from the dataset must be labeled using their specific classes to which they have been designated to inside their respective directory.
+    \1 \textbf{FR-6} All images must be resized before training to enable a smoother and efficient training process.
+    \1 \textbf{FR-7} All training must also be performed using the panchromatic channel of the images.
+    \1 \textbf{FR-8} All images inside the loaded dataset must be transformed into a 1 dimensional array of pixel values for the network to be used.
+    \1 \textbf{FR-9} The label layout of the images must be transformed into a matrix that specifies each sample's class using a binary value.
+    \1 \textbf{FR-10} All training results must be stored inside a csv file, the stored results must include: the date and time of training completion, the accuracy, the precision, the recall, the number of hidden layers used, the number of hidden neurons per hidden layer, the training function used and the training time.
+    \1 \textbf{FR-11} The resulting confusion matrix after testing must also be saved separately.
+    \1 \textbf{FR-12} The best resulting network, measured here by its accuracy, must be saved for later use.
+    \1 \textbf{FR-13} Once the best network has been defined and saved, it must be possible to load the network to predict classes using a specified prediction dataset
+    \1 \textbf{FR-14} The prediction must return a prediction values for each given sample.
+    \1 \textbf{FR-15} The prediction values must be stored in a csv file for later use.
+\end{outline}
+\imagen{requirements}{Overview of how the functional requirements correlate}{}
+
+\subsection{Non-Functional Requirements}
+\begin{itemize}
+    \item \textbf{NFR-1} The layout of the csv file for training results must be intuitive and readable.
+    \item \textbf{NFR-2} Script layout must be clean and well commented.
+\end{itemize}
+\section{Requirements Specification}
+\subsection{Use Case Diagram}
+The use case diagram for the neural network can be seen in figure \ref{fig:usecase}
+\subsection{Use Cases}
+The use case tables can be found \ref{table1}\ref{table2}
+\imagen{usecase}{Use case diagram of the model}{}
+% Caso de Uso 1 -> Consultar Experimentos.
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Use Case-1}    & \textbf{Train the network}\\
+		\toprule
+		\textbf{Version}              & 1.0    \\
+		\textbf{Author}                & Bardia Filizadeh \\
+		\textbf{Associated-requirements} & FR-1, FR-2, FR-3,FR-4,FR-5,FR-6,FR-7,FR-8,FR-9,FR-10,FR-11,FR-12 \\
+		\textbf{Description}          & The programmer trains the network with the given dataset. \\
+		\textbf{Precondition}         & The dataset and MATLAB script \\
+		\textbf{Actions}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item The programmer specifies the filepath for the dataset inside of the script.
+			\item If needed: desired training parameters are specified inside the script by the programmer.
+            \item Programmer executes the script and networks are trained.
+            \item Once training is finished, the programmer can find the results inside the saved csv file.
+		\end{enumerate}\\
+		\textbf{Postcondition}        & The network is trained, results are saved in a csv file \\
+		\textbf{Exceptions}          & If the dataset or the training parameters are faulty, then the training will result in failure and no network will be extracted. \\
+		\textbf{Importance}          & High \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Programmer use case 1.} \label{table1}
+\end{table}
+
+\begin{table}[p]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Use Case-2}    & \textbf{Prediction using the network}\\
+		\toprule
+		\textbf{Version}              & 1.0    \\
+		\textbf{Author}                & Bardia Filizadeh \\
+		\textbf{Associated-requirements} & FR-13, FR-14, FR-15\\
+		\textbf{Description}          & The programmer predicts the classes of a dataset. \\
+		\textbf{Precondition}         & The dataset in required format and MATLAB script for prediction, Trained network \\
+		\textbf{Actions}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item The programmer specifies the filepath for the prediction dataset inside of the script.
+			\item The dataset is loaded into the workspace.
+            \item The previously trained network is loaded into the workspace.
+            \item The network predicts the classes of the dataset and saves resulting data inside a csv file.
+		\end{enumerate}\\
+		\textbf{Postcondition}        & The network predicted the dataset classes, results are saved in a csv file \\
+		\textbf{Exceptions}          & If the dataset or network is faulty, then the prediction will result in failure and no predictions will be saved. \\
+		\textbf{Importance}          & High \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Programmer use case 2.}\label{table2}
+\end{table}
+

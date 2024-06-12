@@ -1,0 +1,30 @@
+\apendice{User Documentation}
+
+This appendix explains the software requirements needed to execute the neural network training and prediction scripts for the network trained in this project.
+
+\section{Software Requirements}
+To be able to execute the scripts, the user will require the license for the software used in this project, which as mentioned in the "Techniques and Tools" chapter of the report, is MATLAB. 
+
+Acquiring a MATLAB license is quite simple, if you're a student/academic, your institution will most likely provide you with an academic license for MATLAB. If your institution does not provide you a license or if you aren't a student, then a license will have to be purchased, either by annual payment, or through an indefinite license \cite{matlab:cost}. Fortunately, licenses purchased for private purposes by individuals are substantially cheaper than the ones provided for institutions and companies. Private licenses are all indefinite and only require a one time payment.
+
+Once a license has been acquired, the next step is installing the software. As this project was developed on MATLAB version R2024a, downloading that same version is essential. To do so, go to \url{https://www.mathworks.com/downloads/} and login using your newly acquired account that is linked to your license and choose the R2024a release of MATLAB to download for your operating system. Once downloaded, you simply have to run the executable and follow the installation steps. Below the carried out process is shown on the 64-bit Windows version.
+
+\imagen{step1}{Step 1 of MATLAB installation}{}
+
+When opening the executable, you will be prompted by the following window \ref{fig:step1}. You will have to login using the account you used to download the executable. Once logged in you will find the terms of license agreement. After reading through the terms you can agree to them and continue. The next window should prompt you to select your license that is linked to your account. Select the license and continue. You will now have to select the destination folder of your MATLAB installation, either change the location to your liking or keep the default location. Once selected, the window will offer all the toolboxes that you want to add during the installation. The toolboxes needed for this project can be seen in figure \ref{fig:step3}
+
+\imagen{step3}{MATLAB toolboxes used for this project}{}
+
+If you accidentally miss one of these toolboxes before installation, there is no need to worry. The toolboxes can also be installed after MATLAB has been completely installed, using the "Add-Ons" button at the top of the MATLAB window.
+
+After selecting all the needed toolboxes, you can simply continue the installation instructions and the installation should finish successfully. Now that MATLAB has been successfully installed, the project installation can begin.
+\section{Installation}
+After acquiring the TFG folder through either GitHub or USB-stick, the folder can be extracted and should be copied to the MATLAB workspace folder \ref{fig:matlab}, which can usually be found under the device's "Documents" section.
+\imagen{matlab}{Matlab workspace folder location, TFG folder should be inserted there}{}
+Should the dataset be acquired separately after receiving the scripts from GitHub, then the dataset folder should be moved inside the TFG folder, on the same level as the scripts. Should the dataset folder include a "cielosmezcla" folder, then it should be moved outside of the folder on the same level as the scripts, this will be the test folder used for predictions using the final trained network. Just make sure to rename the folder to "predictSet" as that is required. To reassure that the folder structure of the main dataset is correct, please confirm with this figure \ref{fig:folders}.
+
+\section{User Manual}
+Once everything is in place, the scripts need simply be opened in MATLAB, by clicking the "Open" button at the top left under the "HOME" tab and selecting the "tfgModel.m" script inside of the TFG folder. Once the script is open, make sure that the current folder of the workspace is the TFG folder, it can be seen right under the previously selected "Open" button, and is a white horizontal line that spans across the window. Its last 2 folders should be the same as in this example \ref{fig:currdir}
+\imagen{currdir}{Example current directory path of MATLAB}{}
+If the path does not end in "MATLAB -> TFG" then you should double click the TFG folder on the folder overview seen on the left side of the window. It can be seen in this figure \ref{fig:direct}
+Now is the time to run the "tfgModel.m" script. Simply click the "Run" button seen in the "EDITOR" tab at top of the window \ref{fig:run} and the network's training will begin. After training is done (which may take an extended time period of a few hours), the network is ready to predict samples using the previously extracted "predictSet". Simply open the "predict.m" script and run it. There should now both be the training results and the prediction results inside of the TFG folder \ref{fig:example}.

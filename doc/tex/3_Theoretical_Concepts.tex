@@ -1,0 +1,76 @@
+\capitulo{3}{Theoretical Concepts}
+\section{Basic concepts}
+
+\subsection{Machine Learning}
+Machine Learning (ML) describes a subset of Artificial Intelligence (AI) that focuses on the development of algorithms that enable computers to learn and make decisions based on data. Systems can also improve their performance on a specific task over time without being explicitly programmed for every scenario, thus making it dynamic. \cite{Bishop-ML} When talking about ML we can differentiate between 3 main types of learning; \textbf{Supervised} Learning, \textbf{Unsupervised} Learning and \textbf{Reinforcement Learning}. Each type has its own methodologies and applications.
+
+\subsubsection{Unsupervised Learning}
+During unsupervised learning, a model is trained on data without labels or specified target output. Its purpose is to identify patterns or structures within the data without outside help. Common techniques used are clustering (e.g. k-means, hierarchical clustering) and dimensional reduction (e.g., PCA, t-SNE).
+
+\subsubsection{Supervised Learning}
+Supervised learning on the other hand, involves training a model on a labeled dataset, which means that each training sample is paired with an output label/value. The goal is to learn a mapping from inputs to outputs. Common techniques include regression and classification. After each training prediction, the prediction provided by the model is compared to the actual label/value. If the label/value is correct, training continues. If it isn't correct, then the model is adjusted according to a specified rule within the model and training is continued.
+\imagen{learn}{Example Comparison of what Supervised and Unsupervised Learning can look like \cite{javatp:learn}}{}
+
+\subsubsection{Reinforcement Learning}
+Reinforcement learning serves as a middle ground between supervised- and unsupervised learning. It works based on the trial and error principle \footnote{A fundamental problem-solving method that consists of performing repeated attempts to solving a problem, until success is achieved.}. It differentiates itself from the previous 2 learning methods by being told during training whether an output was incorrect, but without being told the "solution" in this case. Therefore the model will have to adjust itself with only the directive that the previous output was incorrect. This leads to a severe increase in iterations as the model will have to try repeatedly to figure out the correct adjustment direction to go into. It can be described as a model that learns through experience from its environment \cite{matlab:reinforce}.
+\imagen{reinforce}{Reinforcement Learning Real Life example \cite{matlab:reinforce}}{}
+
+\subsection{Artificial Neural Networks (ANNs)}
+
+In this work we will be using the AI tool known as Artificial Neural Networks (ANNs). ANNs are adaptive systems that adapt by using interconnected nodes or neurons in a layered structure (hence neural network), which resemble that of a human brain~\cite{mathworks:ANNs}. The adaptation is achieved by learning through data, so that the network may be trained to classify data, recognize patterns and even forecast future events based on minor data correlation. Networks consist of multiple layers which are interconnected, each layer containing a set amount of neurons. There is an input layer, one or multiple hidden layers and one output layer. Each neuron is a computation unit that processes its inputs and passes an output to the subsequent layers. Once an input has passed all layers, the output layer computes the final output.
+\imagen{ANN}{Artificial Neural Network Basic Structure}{1.1}
+
+\subsection{Layers}
+\begin{description}
+    \item[Input Layer:] Recipient of the initial data, each neuron in this layer represents a feature in the input data.
+    \item[Hidden Layers:] Layer(s) between input and output layer. Perform transformations on the inputs using a series of weights between the edges of neurons and \textbf{activation functions} on the sum of the input per neuron. This computation process is performed by every neuron in all layers.
+    \item[Output Layer:] Returns the final output of the network, the given solution of the network for the given task (e.g. classification or regression).\cite{Goodfellow-et-al-2016}
+\end{description}
+\imagen{Node}{Node Structure}{}
+
+\subsection{Weights}
+The ANNs ability to perform correctly all depends on the weights being correct on each edge between neurons, so that the input can be transformed into the desired output. The weights of the network are adjusted during training. In addition to weights, there is a possibility to add an additional parameter to the edges called \textbf{bias}. This bias can be used to shift the input into a more desired direction, and can help with performance for specific models. \cite{Goodfellow-et-al-2016}
+
+\subsection{Activation Functions}
+As mentioned before, each neuron applies the sum of their inputs to the activation function. This function returns a new output which is supplied to the next connected neuron/layer. Using these functions allows the network to learn more complex patterns, making the model less linear. The most common activation functions are \textbf{Sigmoid} functions, which return an output value between 0 and 1, often used for classification problems, \textbf{Rectified Linear Unit (ReLU) }functions, that forward the input directly if its a positive number, else it outputs 0, and \textbf{Tanh} functions, which output values are between -1 and 1.
+
+\subsection{Network Training}
+In order for the ANN to be able to perform a given task, it has to be trained on the desired task first, by giving it example data that represents the problem at hand. As we will be performing supervised learning on the ANN, we provide the network with input data of the given problem, along with the desired output for that input data. Before we start training we must first specify a few additional key parameters for the training process.
+
+\begin{description}
+    \item[Learning Rate:] Controls by how much the network weights are adjusted, a smaller learning rate can make the training process slow, while on the contrary a large learning rate can cause the training process to converge too quickly.
+    \item[Epochs:] The number of epochs specifies how many times the training process passes the entire input dataset through the network, depending on the complexity of the problem, a higher number of epochs can allow the network more opportunity to become familiar with the problem.
+    \item[Number of Hidden Layers:] This determines the depth of the network. Adding more hidden layers to the network allows for more complex functions to be adjusted to, but requires more computational resources. Additionally, the risk of \textbf{overfitting} (the networks ability to generalize, degrading due to it leaning itself too much on the training data) increases.
+    \item[Number of Neurons per Hidden Layer:] In the same sense as the number of hidden layers, the number of neurons per hidden layer can increase the networks ability to capture more features, but also increases computational complexity and the risk of overfitting.
+    \item[Loss Function:] Measures the difference between the predicted output of the network and the actual desired target value. Chosen depending on the type of problem (e.g. Cross-Entropy Loss for classification problems, Mean Squared Error for regression problems).
+    \item[Weights Initialization:] The Method used to set the initial values of the network's weights.
+    \item[Stopping Criteria:] It's possible to specify a set stopping criteria to end the training process early, such as: after a fixed number of iterations, training time, error threshold etc. This is done to prevent overfitting and also save unnecessary computation time. 
+    \item[Training Function:] This function defines how the weights and bias values are updated after each input. 
+ \end{description}
+ Once training starts, the network's weights are adjusted constantly using the loss function output and the training function to lean further into the correct direction of the problem, until a stopping criteria is met. Then it is time to test the network using a separate set of data, the test set. The test set data has to be different from the training data as to measure the network's ability to generalize, that being its ability to provide appropriate output regardless of the input data having previously been presented to it or not.
+
+\subsection{The CIE standard sky classification}
+
+Sky classification by the CIE (Commission Internationale de l'Eclairage) standard is defined into 15 standard sky types, each one representing a specific distribution of sky luminance. The sky types range from overcast,partial and clear sky conditions. It is based on theoretical models and empirical data that describe how the light from the sky dome is distributed across different parts of the sky under various weather conditions. The light distribution of each sky can be described mathematically using specific equations. Each type, takes into consideration different atmospheric conditions to clearly differentiate between the types that are within the similar range (overcast, partial and clear).
+
+The usage of this standard are very important for architectural design\cite{LI2014563} \cite{ALSHAIBANI2017387}, atmospheric research and solar energy calculations \cite{LI2001435}, as knowing the the average sky luminance of an area can help in designing buildings with optimal natural lighting use, which reduce the need for artificial light and therefore improving energy efficiency \cite{García-Ruiz}.
+
+The different sky types can be shortly described as follows\cite{GARCIA2020468}:
+\begin{itemize}
+    \item \textbf{Type 1}: Overcast sky with steep gradation\footnote{Gradual transition of sky colors and brightness due to different atmospheric conditions.}.
+    \item \textbf{Type 2}: Overcast with steep gradation and slight brightening towards the sun.
+    \item \textbf{Type 3}: Overcast with moderate gradation.
+    \item \textbf{Type 4}: Overcast with moderate gradation, with slight brightening towards the sun.
+    \item \textbf{Type 5}: Overcast, foggy or cloudy.
+    \item \textbf{Type 6}: Partly cloudy, with uniform gradation and slight brightening towards the sun.
+    \item \textbf{Type 7}: Partly cloud, with uniform gradation and bright circumsolar\footnote{Revolving or surrounding the sun} effect.
+    \item \textbf{Type 8}: Partly cloudy, rather uniform, with a clear solar corona \footnote{Outermost part of the sun, being able to see the "sun's circular form" clearly, so to say.}.
+    \item \textbf{Type 9}: Partly cloudy, with obscured sun.
+    \item \textbf{Type 10}: Partly cloudy, with brighter circumsolar region.
+    \item \textbf{Type 11}: White–blue sky with distinct solar corona.
+    \item \textbf{Type 12}: Clear sky, low illuminance turbidity\footnote{The effect of atmospheric conditions (water vapor, pollutants etc.) on the distribution and intensity of light.}.
+    \item \textbf{Type 13}: Clear sky, polluted atmosphere.
+    \item \textbf{Type 14}: Cloudless turbid sky\footnote{Turbid sky refers to a sky that appears hazy, muddy or opaque due to the presence of turbidity(see previous footnote 6).} with broad solar corona.
+    \item \textbf{Type 15}: White–blue turbid sky with broad solar corona.
+\end{itemize}
+

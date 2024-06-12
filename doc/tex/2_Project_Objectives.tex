@@ -1,0 +1,40 @@
+\capitulo{2}{Project Objectives}
+This chapter defines the objectives pursued by the project. The main purpose of this study is: to use Artificial Neural Networks (ANNs) as an alternative for sky classification by the CIE standard, as well as exploring different training functions for the Artificial Neural Network.
+\subsection{General Objectives}
+\begin{enumerate}
+	\item Investigate the applicability of using ANNs for sky classification under the CIE standard.
+	\item Use different training functions for the network and compare their performance metrics.
+    \item Evaluate whether other training functions aside from the Scaled Conjugate Gradient are a viable option for sky classification ANNs.
+    \item Evaluate the performance of using one of the highest scoring image-processing methods from previous research \cite{skyClassANN-Granados-Lopéz}, with the aforementioned training functions.
+\end{enumerate}
+\subsection{Technical Objectives}
+\begin{enumerate}
+    \item Research the basics of sky classification and its use cases.
+    \item Setup sky image dataset provided by the UBU in such a way that it may be used for ANNs.
+    \item Load the images into the ANN working environment.
+    \item Resize images into an even format, so that its computational cost is not too high to not be usable.
+    \item Extract class labels using the Matlab Deep Learning Toolbox.
+    \item Choose multiple training functions that focus on the usage of backpropagation.
+    \item Train the network using each training function and a different combination of training parameters and compare the results.
+    \item Perform the training again, but this time with image-processing technique applied (the panchromatic channel of each image).
+    \item With the acquisition of passable results, execute training and testing of the network again, this time using cross-validation.
+    \item Extract network variation with the best performance.
+\end{enumerate}
+\subsection{Personal Objectives}
+\begin{enumerate}
+    \item Apply my knowledge acquired about Artificial Intelligence and Neural Networks throughout my exchange semester here through the Computer Engineering Degree.
+    \item Further deepen my knowledge on using the Matlab Deep Learning Toolbox for the development of Artificial Neural Networks.
+    \item Delve into the field of sky classification and its use cases.
+    \item Deepen my understanding of ANNs and the training parameters.
+    \item Learn more about pattern recognition and its application using supervised machine learning.
+    \item Expand my understanding of multi-class classification problems and their implementation using pattern networks.
+\end{enumerate}
+\subsection{Report Structure}
+The report structure is given below, to give a short overview of the content of each chapter
+\begin{itemize}
+    \item Introduction: a short summary of the purpose and motivation for this project
+	\item Objectives: the desired goals and purposes of the project are specified, both on a general and technical level, as well as a personal level.
+	\item Theoretical Concepts: a short inauguration into the basic concepts that will be discussed in this project, mostly in regards to ANNs.
+    \item Techniques and Tools: the main tools and techniques used in the study for development and programming tasks. Explanation of their characteristics and what they have contributed to the work.
+    \item Conclusions: critical assessment of the research results.
+\end{itemize}
